@@ -1,10 +1,5 @@
 <template>
   <div class="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
-    <!-- デバッグ情報 -->
-    <div class="fixed top-0 left-0 bg-black text-white p-2 text-xs z-50">
-      Reverse Mode: {{ reverseMode }}
-    </div>
-
     <div class="max-w-4xl mx-auto h-screen flex flex-col">
       <!-- メッセージ入力エリア（標準モードでは上、リバースモードでは下） -->
       <div
