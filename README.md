@@ -1,100 +1,103 @@
 # Micro Note
 
-チャットのようなUIでメモを保存・管理するデスクトップアプリケーションです。
+[日本語版はこちら](README_ja.md)
 
-## ✨ 新機能
+A desktop application for saving and managing notes with a chat-like UI.
 
-- **🎨 モダンなUI**: グラデーション、シャドウ、アニメーションを活用した洗練されたデザイン
-- **⌨️ スマートなキーボード操作**: Enterで送信、Shift+Enterで改行
-- **🎭 CSSカスタマイズ**: 設定画面でチャットUIの見た目を自由にカスタマイズ
-- **🎯 プリセットテーマ**: モダン、ミニマルなど複数のテーマから選択可能
-- **💾 設定の永続化**: カスタマイズした設定は自動保存
+## Features
 
-## 機能
+- **Chat Screen**: Input messages and save them as notes
+- **Notes List Screen**: Display saved notes in chronological order
+- **Search Function**: Search through note content
+- **Favorites Feature**: Mark important notes as favorites
+- **Copy Function**: Copy note content to clipboard
+- **CSS Customization**: Freely adjust the appearance of the chat UI
+- **SQLite Storage**: Persist notes in a local database
 
-- **チャット画面**: メッセージを入力してメモとして保存
-- **メモ一覧画面**: 保存されたメモを時系列で表示
-- **検索機能**: メモの内容を検索
-- **お気に入り機能**: 重要なメモをお気に入りに登録
-- **コピー機能**: メモの内容をクリップボードにコピー
-- **CSSカスタマイズ**: チャットUIの見た目を自由に調整
-- **SQLite保存**: ローカルデータベースでメモを永続化
+## Tech Stack
 
-## 技術スタック
+- **Frontend**: Vue 3 + Vite + Tailwind CSS
+- **Backend**: Tauri (Rust)
+- **Database**: SQLite
+- **Development Environment**: Docker
+- **UI**: Modern gradient design + animations
 
-- **フロントエンド**: Vue 3 + Vite + Tailwind CSS
-- **バックエンド**: Tauri (Rust)
-- **データベース**: SQLite
-- **開発環境**: Docker
-- **UI**: モダンなグラデーションデザイン + アニメーション
+## Setup
 
-## セットアップ
-
-### 前提条件
+### Prerequisites
 
 - Docker
 - Docker Compose
 
-### 開発環境の起動
+### Starting the Development Environment
 
-1. リポジトリをクローン
+1. Clone the repository
+
 ```bash
-git clone <repository-url>
+git clone https://github.com/shinya/micro-note.git
 cd micro-note
 ```
 
-2. Dockerコンテナを起動
+2. Start Docker containers
+
 ```bash
 docker-compose up --build
 ```
 
-3. ブラウザで `http://localhost:1420` にアクセス
+3. Access `http://localhost:1420` in your browser
 
-### ローカル開発
+### Local Development
 
-1. 依存関係をインストール
+1. Install dependencies
+
 ```bash
 npm install
 ```
 
-2. 開発サーバーを起動
+2. Start the application
+
 ```bash
 npm run tauri dev
 ```
 
-## 使用方法
+## Usage
 
-### チャット画面
-- テキストエリアにメモしたい内容を入力
-- **Enterキー**でメモを送信
-- **Shift + Enter**で改行
-- 送信ボタンでも送信可能
+### Chat Screen
 
-### メモ一覧画面
-- 保存されたメモを時系列で表示
-- 検索ボックスでメモを検索
-- お気に入りボタンでメモをお気に入りに登録
-- コピーボタンでメモの内容をクリップボードにコピー
+- Enter the content you want to save as a note in the text area
+- Press **Enter key** to send the note
+- **Shift + Enter** for line breaks
+- You can also send using the send button
 
-### 設定画面
-- **プリセットテーマ**: モダン、ミニマルなどから選択
-- **カスタムCSS**: チャットUIの見た目を自由にカスタマイズ
-- **プレビュー**: 変更内容をリアルタイムで確認
-- **設定の永続化**: カスタマイズした設定は自動保存
+### Notes List Screen
 
-## CSSカスタマイズ例
+- Display saved notes in chronological order
+- Search notes using the search box
+- Register notes as favorites using the favorite button
+- Copy note content to clipboard using the copy button
 
-### モダンテーマ
+### Settings Screen
+
+- **Preset Themes**: Choose from modern, minimal, and others
+- **Custom CSS**: Freely customize the appearance of the chat UI
+- **Settings Persistence**: Customized settings are automatically saved
+- **Mode Switching**: Toggle dark mode and reverse the chat UI layout
+
+## CSS Customization Examples
+
+### Modern Theme
+
 ```css
 .chat-message {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   border-radius: 20px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
 }
 ```
 
-### ミニマルテーマ
+### Minimal Theme
+
 ```css
 .chat-message {
   background: #f8fafc;
@@ -104,24 +107,60 @@ npm run tauri dev
 }
 ```
 
-## ビルド
+## Building
 
-### デスクトップアプリケーション
+### Desktop Application
 
 ```bash
 npm run tauri build
 ```
 
-ビルドされたアプリケーションは `src-tauri/target/release/` ディレクトリに生成されます。
+The built application will be generated in the `src-tauri/target/release/` directory.
 
-## キーボードショートカット
+### Application Launch
 
-| 操作 | ショートカット |
-|------|----------------|
-| メモ送信 | Enter |
-| 改行 | Shift + Enter |
-| 設定画面 | 設定ボタンクリック |
+#### Method 1: Launch from Application File
 
-## ライセンス
+```bash
+open /path/to/micro-note/src-tauri/target/release/bundle/macos/Micro\ Note.app
+```
+
+#### Method 2: Launch Directly from Terminal
+
+```bash
+/path/to/micro-note/src-tauri/target/release/tauri-app
+```
+
+#### Method 3: Install from DMG File
+
+1. Double-click `src-tauri/target/release/bundle/dmg/Micro Note_0.1.0_aarch64.dmg`
+2. Drag `Micro Note.app` from the mounted disk image to the `Applications` folder
+3. Launch `Micro Note.app` from the `Applications` folder
+
+### Troubleshooting
+
+#### When the Application Won't Launch
+
+**Recommended Launch Methods:**
+
+1. **Launch from Terminal** (Most Reliable)
+
+   ```bash
+   /path/to/micro-note/src-tauri/target/release/tauri-app
+   ```
+
+2. **Launch from Application File**
+
+   - Click "Allow" when the security dialog appears
+   - Or check **System Settings** → **Privacy & Security** for blocked application settings
+
+3. **Launch in Development Mode** (For Debugging)
+   ```bash
+   npm run tauri dev
+   ```
+
+**Note:** The application works correctly, but there may be GUI window display issues. We recommend launching from terminal.
+
+## License
 
 MIT License

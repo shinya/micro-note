@@ -1,12 +1,6 @@
 <template>
   <div class="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
     <div class="max-w-6xl mx-auto p-6">
-      <!-- ヘッダー -->
-      <div class="text-center mb-8">
-        <h1 class="text-3xl font-bold text-gray-900 mb-2">{{ $t('notes.title') }}</h1>
-        <p class="text-gray-600">{{ $t('notes.subtitle') }}</p>
-      </div>
-
       <!-- 検索とフィルター -->
       <div class="bg-white rounded-2xl shadow-lg p-6 mb-6">
         <div class="flex flex-col sm:flex-row gap-4">
@@ -37,29 +31,14 @@
               ]"
             >
               <span class="flex items-center space-x-2">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
                 </svg>
                 <span>{{ $t('notes.favorite') }}</span>
               </span>
             </button>
 
-            <!-- エクスポートボタン -->
-            <button
-              @click="exportToCSV"
-              :disabled="filteredNotes.length === 0"
-              :class="[
-                'px-6 py-3 rounded-xl font-medium transition-all duration-200 flex items-center space-x-2',
-                filteredNotes.length === 0
-                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                  : 'bg-green-600 text-white hover:bg-green-700 shadow-lg'
-              ]"
-            >
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
-              <span>{{ $t('notes.exportToCSV') }}</span>
-            </button>
+
           </div>
         </div>
       </div>
@@ -67,60 +46,52 @@
 
 
       <!-- メモ一覧 -->
-      <div class="space-y-4">
+      <div class="space-y-3">
         <div
           v-for="note in filteredNotes"
           :key="note.id"
-          class="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition-all duration-200"
+          class="bg-white rounded-xl shadow-md p-3 hover:shadow-lg transition-all duration-200 cursor-pointer"
+          @click="copyToClipboard(note.content)"
+          :title="$t('notes.clickToCopy')"
         >
-          <div class="flex items-start justify-between">
+          <div class="flex items-center">
+            <!-- お気に入りボタン（左端） -->
+            <div class="flex-shrink-0 mr-3" @click.stop>
+              <button
+                @click="toggleFavorite(note.id, !note.is_favorite)"
+                class="p-1.5 rounded-md transition-all duration-200 bg-gray-50 hover:bg-gray-100"
+              >
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                  <path
+                    :fill="note.is_favorite ? '#ffcc00' : 'currentColor'"
+                    d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
+                  />
+                </svg>
+              </button>
+            </div>
+
+            <!-- メモ内容 -->
             <div class="flex-1">
-              <p class="text-gray-900 whitespace-pre-wrap leading-relaxed mb-3">{{ note.content }}</p>
-              <div class="flex items-center space-x-4 text-sm text-gray-500">
-                <span>{{ formatTime(note.timestamp) }}</span>
+              <p class="text-gray-900 whitespace-pre-wrap leading-normal text-sm mb-2">{{ note.content }}</p>
+              <div class="flex items-center space-x-3 text-xs text-gray-400">
+                <span class="text-xs">{{ formatTime(note.timestamp) }}</span>
                 <span class="flex items-center space-x-1">
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
-                  <span>{{ note.id.slice(0, 8) }}</span>
+                  <span class="text-xs">{{ note.id.slice(0, 8) }}</span>
                 </span>
               </div>
             </div>
 
-            <!-- アクションボタン -->
-            <div class="flex items-center space-x-2 ml-4">
-              <!-- お気に入りボタン -->
-              <button
-                @click="toggleFavorite(note.id, !note.is_favorite)"
-                :class="[
-                  'p-2 rounded-lg transition-all duration-200',
-                  note.is_favorite
-                    ? 'text-red-500 bg-red-50 hover:bg-red-100'
-                    : 'text-gray-400 bg-gray-50 hover:bg-gray-100'
-                ]"
-              >
-                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-                </svg>
-              </button>
-
-              <!-- コピーボタン -->
-              <button
-                @click="copyToClipboard(note.content)"
-                class="p-2 text-gray-400 bg-gray-50 hover:bg-gray-100 rounded-lg transition-all duration-200"
-              >
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                </svg>
-              </button>
-
-              <!-- 削除ボタン -->
+            <!-- 削除ボタン（右端） -->
+            <div class="flex-shrink-0 ml-3" @click.stop>
               <button
                 @click="() => { console.log('Delete button clicked for note:', note.id); deleteNote(note.id); }"
-                class="p-2 text-red-400 bg-red-50 hover:bg-red-100 rounded-lg transition-all duration-200"
+                class="p-1.5 text-red-400 bg-red-50 hover:bg-red-100 rounded-md transition-all duration-200"
                 :title="$t('notes.deleteNote')"
               >
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                 </svg>
               </button>
@@ -147,6 +118,20 @@
         </div>
       </div>
     </div>
+
+    <!-- トースト通知 -->
+    <div
+      v-if="showToast"
+      class="fixed bottom-4 left-4 z-50 transform transition-all duration-300 ease-in-out"
+      :class="showToast ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0'"
+    >
+      <div class="bg-green-500 text-white px-6 py-4 rounded-lg shadow-lg flex items-center space-x-3">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+        </svg>
+        <span class="font-medium">{{ toastMessage }}</span>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -161,6 +146,8 @@ import { save } from '@tauri-apps/plugin-dialog'
 const noteStore = useNoteStore()
 const searchQuery = ref('')
 const showFavorites = ref(false)
+const showToast = ref(false)
+const toastMessage = ref('')
 
 const { t } = useI18n()
 
@@ -210,7 +197,7 @@ const deleteNote = async (id) => {
     console.log('Note deleted successfully:', id)
   } catch (error) {
     console.error('Failed to delete note:', error)
-    alert(t('notes.deleteError'))
+    showToastMessage(t('notes.deleteError'))
   }
 }
 
@@ -227,107 +214,28 @@ const copyToClipboard = async (text) => {
       document.execCommand('copy')
       document.body.removeChild(textArea)
     }
-    alert(t('notes.copiedToClipboard'))
+    showToastMessage(t('notes.copiedToClipboard'))
   } catch (error) {
     console.error('Failed to copy to clipboard:', error)
-    alert(t('notes.copyError'))
+    showToastMessage(t('notes.copyError'))
   }
+}
+
+const showToastMessage = (message) => {
+  toastMessage.value = message
+  showToast.value = true
+
+  // Hide toast after 3 seconds
+  setTimeout(() => {
+    showToast.value = false
+  }, 3000)
 }
 
 const formatTime = (timestamp) => {
   return new Date(timestamp).toLocaleString('ja-JP')
 }
 
-const exportToCSV = async () => {
-  if (filteredNotes.value.length === 0) {
-    alert(t('notes.exportNoNotes'))
-    return
-  }
 
-  try {
-    // CSV headers
-    const headers = ['ID', t('notes.csvContent'), t('notes.csvTimestamp'), t('notes.csvFavorite')]
-
-    // Create CSV data
-    const csvData = filteredNotes.value.map(note => [
-      note.id,
-      // Escape line breaks and commas in content
-      `"${note.content.replace(/"/g, '""').replace(/\n/g, ' ')}"`,
-      formatTime(note.timestamp),
-      note.is_favorite ? t('common.yes') : t('common.no')
-    ])
-
-    // Create CSV string
-    const csvContent = [
-      headers.join(','),
-      ...csvData.map(row => row.join(','))
-    ].join('\n')
-
-    // Add BOM for UTF-8 encoding
-    const BOM = '\uFEFF'
-    const csvString = BOM + csvContent
-
-    if (isTauri()) {
-      // For Tauri application
-      try {
-        const now = new Date()
-        const dateStr = now.toISOString().slice(0, 19).replace(/:/g, '-')
-        const defaultFileName = `micro-notes-${dateStr}.csv`
-
-        // Show file save dialog
-        const filePath = await save({
-          title: t('notes.exportDialogTitle'),
-          filters: [
-            {
-              name: 'CSV Files',
-              extensions: ['csv']
-            }
-          ],
-          defaultPath: defaultFileName
-        })
-
-        if (filePath) {
-          await writeTextFile(filePath, csvString)
-          alert(t('notes.exportSuccess', { count: filteredNotes.value.length, path: filePath }))
-        } else {
-          alert(t('notes.exportCanceled'))
-        }
-      } catch (error) {
-        console.error('Tauri CSV export failed:', error)
-        alert(t('notes.exportError', { error: error }))
-      }
-    } else {
-      // For web browser
-      const now = new Date()
-      const dateStr = now.toISOString().slice(0, 19).replace(/:/g, '-')
-      const fileName = `micro-notes-${dateStr}.csv`
-
-      // Blobの作成とダウンロード
-      const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' })
-      const link = document.createElement('a')
-
-      if (link.download !== undefined) {
-        const url = URL.createObjectURL(blob)
-        link.setAttribute('href', url)
-        link.setAttribute('download', fileName)
-        link.style.visibility = 'hidden'
-        document.body.appendChild(link)
-        link.click()
-        document.body.removeChild(link)
-        URL.revokeObjectURL(url)
-
-        // Success message
-        alert(t('notes.exportSuccess', { count: filteredNotes.value.length }))
-      } else {
-        // Fallback for older browsers
-        window.open('data:text/csv;charset=utf-8,' + encodeURIComponent(csvString))
-      }
-    }
-  } catch (error) {
-    console.error('CSV export failed:', error)
-    alert(t('notes.exportError'))
-  }
-}
 
 const loadNotes = async () => {
   try {
