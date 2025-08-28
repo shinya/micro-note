@@ -1,0 +1,249 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* カスタムスクロールバー */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* ダークモードスタイル */
+.dark {
+  color-scheme: dark;
+}
+
+.dark body {
+  background-color: #0f172a;
+  color: #e2e8f0;
+}
+
+/* 背景色の変更 */
+.dark .bg-white {
+  background-color: #1e293b;
+}
+
+.dark .bg-gray-50 {
+  background-color: #334155;
+}
+
+.dark .bg-gray-100 {
+  background-color: #475569;
+}
+
+.dark .bg-gradient-to-br.from-blue-50.via-white.to-indigo-50 {
+  background: linear-gradient(to bottom right, #1e293b, #334155, #1e293b);
+}
+
+.dark .bg-gradient-to-b.from-gray-50\/50.to-white\/50 {
+  background: linear-gradient(to bottom, rgba(51, 65, 85, 0.5), rgba(30, 41, 59, 0.5));
+}
+
+/* テキスト色の変更 */
+.dark .text-gray-900 {
+  color: #f1f5f9;
+}
+
+.dark .text-gray-600 {
+  color: #cbd5e1;
+}
+
+.dark .text-gray-500 {
+  color: #94a3b8;
+}
+
+.dark .text-blue-600 {
+  color: #60a5fa;
+}
+
+/* ボーダー色の変更 */
+.dark .border-gray-200 {
+  border-color: #475569;
+}
+
+.dark .border-gray-100 {
+  border-color: #334155;
+}
+
+/* シャドウの調整 */
+.dark .shadow-lg {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+}
+
+/* プレースホルダーの色調整 */
+.dark .placeholder-gray-400::placeholder {
+  color: #94a3b8;
+}
+
+/* フォーカス時の色調整 */
+.dark .focus\:border-blue-500:focus {
+  border-color: #60a5fa;
+}
+
+.dark .focus\:ring-blue-500\/20:focus {
+  --tw-ring-color: rgba(96, 165, 250, 0.2);
+}
+
+/* アニメーション制御 */
+.animations-enabled * {
+  transition: all 0.2s ease-in-out;
+}
+
+.animations-disabled * {
+  transition: none !important;
+}
+
+/* アニメーション無効時のホバー効果も無効化 */
+.animations-disabled *:hover {
+  transform: none !important;
+}
+
+/* カスタムCSSのプレビュー用スタイル */
+.chat-header,
+.chat-message,
+.chat-input {
+  transition: all 0.3s ease;
+}
+
+/* ダークモード時のプレビュー調整 */
+.dark .chat-header,
+.dark .chat-message,
+.dark .chat-input {
+  background-color: #1e293b;
+  color: #e2e8f0;
+  border-color: #475569;
+}
+
+/* 設定画面のプレビュー要素のダークモード */
+.dark .chat-header h5,
+.dark .chat-header p {
+  color: #e2e8f0;
+}
+
+.dark .chat-message p {
+  color: #e2e8f0;
+}
+
+.dark .chat-input input {
+  background-color: #1e293b;
+  color: #e2e8f0;
+  border-color: #475569;
+}
+
+.dark .chat-input input::placeholder {
+  color: #94a3b8;
+}
+
+/* 設定画面のダークモードスタイル */
+.dark .bg-white\/80 {
+  background-color: rgba(30, 41, 59, 0.8) !important;
+}
+
+.dark .border-white\/20 {
+  border-color: rgba(71, 85, 105, 0.2) !important;
+}
+
+.dark .shadow-xl {
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 10px 10px -5px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* 設定画面のプレビューエリア */
+.dark .bg-gray-50 {
+  background-color: #1e293b !important;
+}
+
+.dark .border-gray-200 {
+  border-color: #475569 !important;
+}
+
+/* テキストエリアのダークモード */
+.dark .font-mono {
+  color: #e2e8f0 !important;
+}
+
+.dark .border-gray-200:focus {
+  border-color: #60a5fa !important;
+}
+
+.dark .focus\:ring-blue-500\/20:focus {
+  --tw-ring-color: rgba(96, 165, 250, 0.2) !important;
+}
+
+/* 設定画面全体のダークモード強化 */
+.dark .max-w-5xl {
+  background-color: #0f172a !important;
+}
+
+.dark .space-y-8 > div {
+  background-color: transparent !important;
+}
+
+/* 設定画面ヘッダーのダークモード強化 */
+.dark .bg-gradient-to-r.from-blue-50.to-indigo-50 {
+  background: linear-gradient(to right, #374151, #1f2937) !important;
+}
+
+.dark .border-gray-100 {
+  border-color: #4b5563 !important;
+}
+
+/* 設定画面のタイトルテキストのダークモード強化 */
+.dark .text-gray-900 {
+  color: #f9fafb !important;
+}
+
+.dark .text-gray-600 {
+  color: #d1d5db !important;
+}
+
+/* 設定画面ヘッダーの強力なダークモード */
+.dark .bg-white\/80 {
+  background-color: rgba(31, 41, 55, 0.9) !important;
+}
+
+.dark .border-white\/20 {
+  border-color: rgba(75, 85, 99, 0.3) !important;
+}
+
+/* 設定画面のタイトル部分の強力なダークモード */
+.dark h2.text-xl.font-bold {
+  color: #ffffff !important;
+}
+
+.dark p.text-sm.text-gray-600 {
+  color: #e5e7eb !important;
+}
+
+/* 設定画面の背景グラデーションの強力なダークモード */
+.dark .bg-gradient-to-r.from-blue-50.to-indigo-50 {
+  background: linear-gradient(to right, #1f2937, #111827) !important;
+}
+
+/* プリセットテーマカードのダークモード強化 */
+.dark .grid button {
+  background-color: #1e293b !important;
+  border-color: #475569 !important;
+}
+
+.dark .grid button:hover {
+  background-color: #334155 !important;
+  border-color: #64748b !important;
+}
+
+.dark .grid button.border-blue-500 {
+  background-color: rgba(59, 130, 246, 0.2) !important;
+  border-color: #60a5fa !important;
+}

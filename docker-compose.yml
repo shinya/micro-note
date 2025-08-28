@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  micro-note:
+    build: .
+    ports:
+      - "1420:1420"
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/src-tauri/target
+    environment:
+      - NODE_ENV=development
+    stdin_open: true
+    tty: true
