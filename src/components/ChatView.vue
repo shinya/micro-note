@@ -1,20 +1,16 @@
 <template>
   <div class="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
-    <div class="max-w-4xl mx-auto h-screen flex flex-col">
-      <!-- デバッグ情報 -->
-      <div v-if="showDebugInfo" class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4 mx-8">
-        <h3 class="text-sm font-medium text-yellow-800 mb-2">ChatView デバッグ情報</h3>
-        <div class="text-xs text-yellow-700 space-y-1">
-          <div>noteStore.notes: {{ typeof noteStore.notes }}</div>
-          <div>noteStore.notes.value length: {{ noteStore.notes?.value?.length || 0 }}</div>
-          <div>noteStore.notes.value: {{ JSON.stringify(noteStore.notes?.value) }}</div>
-          <div>Filtered notes: {{ (noteStore.notes?.value || []).filter(note => note && note.id && note.content).length }}</div>
-          <div>First note content: {{ noteStore.notes?.value?.[0]?.content || 'No content' }}</div>
-        </div>
-      </div>
+    <!-- デバッグ情報 -->
+    <div class="fixed top-0 left-0 bg-black text-white p-2 text-xs z-50">
+      Reverse Mode: {{ reverseMode }}
+    </div>
 
-      <!-- メッセージ入力エリア（上端固定） -->
-      <div class="px-8 py-6 border-b border-gray-100 bg-white chat-input flex-shrink-0">
+    <div class="max-w-4xl mx-auto h-screen flex flex-col">
+      <!-- メッセージ入力エリア（標準モードでは上、リバースモードでは下） -->
+      <div
+        v-if="!reverseMode"
+        class="px-8 py-6 bg-white chat-input border-b border-gray-100"
+      >
         <form @submit.prevent="sendMessage" class="space-y-4">
           <div class="relative">
             <textarea
@@ -22,7 +18,7 @@
               ref="messageInput"
               rows="3"
               class="input-area block w-full rounded-2xl border-gray-200 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 resize-none transition-all duration-200 text-gray-900 placeholder-gray-400"
-              placeholder="メモとして保存したい内容を入力してください..."
+              :placeholder="$t('chat.placeholder')"
               @keydown="handleKeydown"
             ></textarea>
 
@@ -45,67 +41,121 @@
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
                 </svg>
-                <span>Enter で送信</span>
+                <span>{{ $t('chat.enterToSend') }}</span>
               </span>
               <span class="flex items-center space-x-1">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16l-4-4m0 0l4-4m-4 4h18" />
                 </svg>
-                <span>Shift + Enter で改行</span>
+                <span>{{ $t('chat.shiftEnterNewline') }}</span>
               </span>
             </div>
 
             <span class="text-blue-600 font-medium">
-              {{ newMessage.length }} 文字
+              {{ $t('chat.characterCount', { count: newMessage.length }) }}
             </span>
           </div>
         </form>
       </div>
 
       <!-- メッセージ表示エリア（スクロール可能） -->
-      <div class="flex-1 overflow-y-auto p-8 space-y-6 bg-gradient-to-b from-gray-50/50 to-white/50">
-        <!-- メッセージ一覧 -->
-        <template v-for="note in (noteStore.notes?.value || [])" :key="note?.id || Math.random()">
-          <div
-            v-if="note && note.id && note.content"
-            class="flex items-start space-x-4"
-          >
-            <div class="flex-shrink-0">
-              <div class="w-10 h-10 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full flex items-center justify-center">
-                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                </svg>
+      <div class="flex-1 overflow-y-auto bg-gradient-to-b from-gray-50/50 to-white/50 chat-messages">
+        <div class="p-8 space-y-6">
+          <!-- メッセージ一覧 -->
+          <template v-for="note in (reverseMode ? [...(noteStore.notes?.value || [])].reverse() : (noteStore.notes?.value || []))" :key="note?.id || Math.random()">
+            <div
+              v-if="note && note.id && note.content"
+              class="flex items-start space-x-4"
+            >
+              <div class="flex-shrink-0">
+                <div class="w-10 h-10 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full flex items-center justify-center">
+                  <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  </svg>
+                </div>
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="bg-white rounded-2xl px-6 py-4 shadow-lg border border-gray-100 chat-message">
+                  <p class="text-gray-900 whitespace-pre-wrap leading-relaxed">{{ note.content }}</p>
+                </div>
+                <div class="mt-3 flex items-center space-x-3">
+                  <span class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                    {{ formatTime(note.timestamp) }}
+                  </span>
+                  <span class="text-xs text-blue-600 bg-blue-50 px-2 py-1 rounded-full font-medium">
+                    ✓ {{ $t('chat.savedAsNote') }}
+                  </span>
+                </div>
               </div>
             </div>
-            <div class="flex-1 min-w-0">
-              <div class="bg-white rounded-2xl px-6 py-4 shadow-lg border border-gray-100 chat-message">
-                <p class="text-gray-900 whitespace-pre-wrap leading-relaxed">{{ note.content }}</p>
-              </div>
-              <div class="mt-3 flex items-center space-x-3">
-                <span class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
-                  {{ formatTime(note.timestamp) }}
-                </span>
-                <span class="text-xs text-blue-600 bg-blue-50 px-2 py-1 rounded-full font-medium">
-                  ✓ メモとして保存済み
-                </span>
-              </div>
-            </div>
-          </div>
-        </template>
+          </template>
 
-        <!-- メッセージがない場合 -->
-        <div
-          v-if="!noteStore.notes?.value || noteStore.notes?.value?.length === 0"
-          class="text-center py-12"
-        >
-          <div class="w-16 h-16 bg-gradient-to-r from-blue-100 to-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <svg class="w-8 h-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-            </svg>
+          <!-- メッセージがない場合 -->
+          <div
+            v-if="!noteStore.notes?.value || noteStore.notes?.value?.length === 0"
+            class="text-center py-12"
+          >
+            <div class="w-16 h-16 bg-gradient-to-r from-blue-100 to-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg class="w-8 h-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+              </svg>
+            </div>
+            <h3 class="text-lg font-medium text-gray-900 mb-2">{{ $t('chat.createFirstNote') }}</h3>
+            <p class="text-gray-500">{{ $t('chat.createFirstNoteDescription') }}</p>
           </div>
-          <h3 class="text-lg font-medium text-gray-900 mb-2">最初のメモを作成しましょう</h3>
-          <p class="text-gray-500">下のテキストエリアにメモしたい内容を入力してください</p>
         </div>
+      </div>
+
+      <!-- メッセージ入力エリア（リバースモードでは下） -->
+      <div
+        v-if="reverseMode"
+        class="px-8 py-6 bg-white chat-input border-t border-gray-100"
+      >
+        <form @submit.prevent="sendMessage" class="space-y-4">
+          <div class="relative">
+            <textarea
+              v-model="newMessage"
+              ref="messageInput"
+              rows="3"
+              class="input-area block w-full rounded-2xl border-gray-200 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 resize-none transition-all duration-200 text-gray-900 placeholder-gray-400"
+              :placeholder="$t('chat.placeholder')"
+              @keydown="handleKeydown"
+            ></textarea>
+
+            <!-- 送信ボタン -->
+            <button
+              type="submit"
+              :disabled="!newMessage.trim()"
+              class="absolute bottom-3 right-3 inline-flex items-center justify-center w-10 h-10 rounded-xl shadow-lg text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-blue-500/50 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+            >
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+              </svg>
+            </button>
+          </div>
+
+          <!-- ヘルプテキスト -->
+          <div class="flex items-center justify-between text-xs text-gray-500">
+            <div class="flex items-center space-x-4">
+              <span class="flex items-center space-x-1">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+                <span>{{ $t('chat.enterToSend') }}</span>
+              </span>
+              <span class="flex items-center space-x-1">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16l-4-4m0 0l4-4m-4 4h18" />
+                </svg>
+                <span>{{ $t('chat.shiftEnterNewline') }}</span>
+              </span>
+            </div>
+
+            <span class="text-blue-600 font-medium">
+              {{ $t('chat.characterCount', { count: newMessage.length }) }}
+            </span>
+          </div>
+        </form>
       </div>
 
 
@@ -114,18 +164,25 @@
 </template>
 
 <script setup>
-import { ref, onMounted, nextTick } from 'vue'
+import { ref, onMounted, nextTick, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useNoteStore } from '../stores/noteStore'
 
 const newMessage = ref('')
 const messageInput = ref(null)
 const noteStore = useNoteStore()
-const showDebugInfo = ref(false)
+const reverseMode = ref(false)
 
-// 設定画面からデバッグ情報の表示状態を取得
-const updateDebugInfoState = () => {
+const { t } = useI18n()
+
+// Get reverse mode state from settings screen
+const updateReverseModeState = () => {
   if (window.microNoteSettings) {
-    showDebugInfo.value = window.microNoteSettings.debugInfo || false
+    const newReverseMode = window.microNoteSettings.reverseMode || false
+    if (reverseMode.value !== newReverseMode) {
+      reverseMode.value = newReverseMode
+      console.log('Reverse mode updated:', reverseMode.value)
+    }
   }
 }
 
@@ -134,14 +191,14 @@ const updateDebugInfoState = () => {
 
 
 const handleKeydown = (event) => {
-  // Enterキーが押された場合のみ処理
+  // Only process when Enter key is pressed
   if (event.keyCode === 13) {
-    // Shift+Enterの場合は何もしない（改行を許可）
+    // Do nothing for Shift+Enter (allow line break)
     if (event.shiftKey) {
       return
     }
 
-    // 通常のEnterの場合は送信
+    // Send for normal Enter
     event.preventDefault()
     sendMessage()
   }
@@ -162,7 +219,7 @@ const sendMessage = async () => {
     }
   } catch (error) {
     console.error('Failed to save note:', error)
-    alert('メモの保存に失敗しました')
+    alert($t('chat.noteSaveError'))
   }
 }
 
@@ -178,15 +235,17 @@ const loadMessages = async () => {
   }
 }
 
+
+
 onMounted(() => {
   loadMessages()
 
-  // デバッグ情報の表示状態を初期化
-  updateDebugInfoState()
+  // Initialize reverse mode state
+  updateReverseModeState()
 
-  // 設定の変更を監視（1秒ごとにチェック）
+  // Monitor settings changes (check every 1 second)
   setInterval(() => {
-    updateDebugInfoState()
+    updateReverseModeState()
   }, 1000)
 })
 </script>
@@ -195,6 +254,13 @@ onMounted(() => {
 
 .input-area {
   padding: 10px;
+  background-color: #f0f0f0;
+}
+
+
+
+.dark .input-area {
+  background-color: #303641;
 }
 
 /* カスタムスクロールバー */

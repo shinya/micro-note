@@ -11,8 +11,8 @@
             </svg>
           </div>
           <div>
-            <h2 class="text-xl font-bold text-gray-900 dark:text-gray-100 dark:text-white">設定</h2>
-            <p class="text-sm text-gray-600 dark:text-gray-300 dark:text-gray-200">アプリケーションのカスタマイズ設定</p>
+            <h2 class="text-xl font-bold text-gray-900 dark:text-gray-100 dark:text-white">{{ $t('settings.title') }}</h2>
+            <p class="text-sm text-gray-600 dark:text-gray-300 dark:text-gray-200">{{ $t('settings.subtitle') }}</p>
           </div>
         </div>
       </div>
@@ -22,13 +22,13 @@
         <!-- CSSカスタマイズセクション -->
         <div class="space-y-6">
           <div class="border-b border-gray-200 pb-4 dark:border-gray-600">
-            <h3 class="text-lg font-semibold text-gray-900 mb-2 dark:text-gray-100">チャットUIカスタマイズ</h3>
-            <p class="text-sm text-gray-600 dark:text-gray-300">チャット画面の見た目をCSSでカスタマイズできます</p>
+            <h3 class="text-lg font-semibold text-gray-900 mb-2 dark:text-gray-100">{{ $t('settings.chatUICustomization') }}</h3>
+            <p class="text-sm text-gray-600 dark:text-gray-300">{{ $t('settings.chatUICustomizationDescription') }}</p>
           </div>
 
           <!-- プリセットテーマ -->
           <div class="space-y-4">
-            <h4 class="text-md font-medium text-gray-900 dark:text-gray-100">プリセットテーマ</h4>
+            <h4 class="text-md font-medium text-gray-900 dark:text-gray-100">{{ $t('settings.presetThemes') }}</h4>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
               <button
                 v-for="theme in presetThemes"
@@ -53,19 +53,32 @@
           <!-- カスタムCSSエディター -->
           <div class="space-y-4">
             <div class="flex items-center justify-between">
-              <h4 class="text-md font-medium text-gray-900 dark:text-gray-100">カスタムCSS</h4>
+              <h4 class="text-md font-medium text-gray-900 dark:text-gray-100">{{ $t('settings.customCSS') }}</h4>
               <div class="flex space-x-2">
                 <button
                   @click="resetCustomCSS"
                   class="px-3 py-1 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors dark:text-gray-300 dark:hover:text-gray-100 dark:hover:bg-gray-700"
                 >
-                  リセット
+                  {{ $t('settings.reset') }}
                 </button>
                 <button
                   @click="saveCustomCSS"
-                  class="px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 shadow-md hover:shadow-lg"
+                  :disabled="saveButtonLoading"
+                  :class="[
+                    'px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 shadow-md hover:shadow-lg flex items-center space-x-2',
+                    saveButtonLoading
+                      ? 'bg-gray-400 cursor-not-allowed'
+                      : 'text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700'
+                  ]"
                 >
-                  保存
+                  <svg v-if="saveButtonLoading" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  <svg v-else class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                  </svg>
+                  <span>{{ saveButtonText }}</span>
                 </button>
               </div>
             </div>
@@ -74,7 +87,7 @@
               <textarea
                 v-model="customCSS"
                 rows="12"
-                class="block w-full rounded-xl border border-gray-200 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 resize-none font-mono text-sm dark:bg-gray-800 dark:border-gray-600 dark:text-gray-100 dark:placeholder-gray-400"
+                class="block w-full rounded-xl border border-gray-200 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 resize-none font-mono text-sm dark:bg-gray-800 dark:border-gray-600 dark:text-gray-100 dark:placeholder-gray-400 pl-14"
                 placeholder="/* カスタムCSSを入力してください */
 .chat-message {
   /* メッセージのスタイル */
@@ -87,25 +100,31 @@
 .chat-header {
   /* ヘッダーのスタイル */
 }"
+                @input="updateLineNumbers"
+                @scroll="syncScroll"
+                ref="cssTextarea"
               ></textarea>
 
               <!-- 行番号表示 -->
-              <div class="absolute left-0 top-0 w-12 h-full bg-gray-50 border-r border-gray-200 rounded-l-xl pointer-events-none dark:bg-gray-700 dark:border-gray-600">
-                <div class="text-xs text-gray-400 text-right pr-2 pt-3 leading-6 dark:text-gray-500">
-                  <div v-for="n in 12" :key="n">{{ n }}</div>
+              <div class="absolute left-0 top-0 w-12 h-full bg-gray-50 border-r border-gray-200 rounded-l-xl pointer-events-none dark:bg-gray-700 dark:border-gray-600 overflow-hidden">
+                <div
+                  class="text-xs text-gray-400 text-right pr-2 pt-3 leading-6 dark:text-gray-500 transition-transform duration-100"
+                  :style="{ transform: `translateY(${scrollOffset}px)` }"
+                >
+                  <div v-for="n in lineCount" :key="n" class="h-6 flex items-center justify-end">{{ n }}</div>
                 </div>
               </div>
             </div>
 
             <p class="text-xs text-gray-500 dark:text-gray-400">
-              CSSの変更は即座に反映されます。保存ボタンを押すと永続化されます。
+              {{ $t('settings.customCSSDescription') }}
             </p>
           </div>
         </div>
 
         <!-- プレビューセクション -->
         <div class="space-y-4">
-          <h4 class="text-md font-medium text-gray-900">プレビュー</h4>
+          <h4 class="text-md font-medium text-gray-900">{{ $t('settings.preview') }}</h4>
           <div class="bg-gray-50 rounded-xl p-6 border border-gray-200 dark:bg-gray-800 dark:border-gray-600">
             <div class="max-w-md mx-auto">
               <!-- チャットヘッダーのプレビュー -->
@@ -117,8 +136,8 @@
                     </svg>
                   </div>
                   <div>
-                    <h5 class="font-medium text-gray-900">チャット</h5>
-                    <p class="text-sm text-gray-500">プレビュー</p>
+                    <h5 class="font-medium text-gray-900">{{ $t('navigation.chat') }}</h5>
+                    <p class="text-sm text-gray-500">{{ $t('settings.preview') }}</p>
                   </div>
                 </div>
               </div>
@@ -132,7 +151,7 @@
                     </svg>
                   </div>
                   <div class="bg-gray-100 rounded-lg px-3 py-2">
-                    <p class="text-sm text-gray-900">これはプレビューメッセージです</p>
+                    <p class="text-sm text-gray-900">{{ $t('settings.previewMessage') }}</p>
                   </div>
                 </div>
               </div>
@@ -142,12 +161,12 @@
                 <div class="flex space-x-2">
                   <input
                     type="text"
-                    placeholder="メッセージを入力..."
+                    :placeholder="$t('chat.placeholder')"
                     class="flex-1 px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
                     readonly
                   />
                   <button class="px-4 py-2 bg-blue-500 text-white rounded-lg text-sm">
-                    送信
+                    {{ $t('chat.send') }}
                   </button>
                 </div>
               </div>
@@ -157,8 +176,7 @@
           <!-- プレビューの説明 -->
           <div class="text-center">
             <p class="text-sm text-gray-600 dark:text-gray-300">
-              上記のプレビューに選択したテーマが適用されます。<br>
-              テーマを変更すると、チャット画面の見た目が変わります。
+              {{ $t('settings.previewDescription') }}
             </p>
           </div>
         </div>
@@ -166,14 +184,14 @@
         <!-- その他の設定 -->
         <div class="space-y-6">
           <div class="border-b border-gray-200 pb-4 dark:border-gray-600">
-            <h3 class="text-lg font-semibold text-gray-900 mb-2 dark:text-gray-100">その他の設定</h3>
+            <h3 class="text-lg font-semibold text-gray-900 mb-2 dark:text-gray-100">{{ $t('settings.otherSettings') }}</h3>
           </div>
 
           <div class="space-y-4">
             <div class="flex items-center justify-between">
               <div>
-                <h4 class="text-md font-medium text-gray-900 dark:text-gray-100">ダークモード</h4>
-                <p class="text-sm text-gray-600 dark:text-gray-300">ダークテーマを有効にする</p>
+                <h4 class="text-md font-medium text-gray-900 dark:text-gray-100">{{ $t('settings.darkMode') }}</h4>
+                <p class="text-sm text-gray-600 dark:text-gray-300">{{ $t('settings.darkModeDescription') }}</p>
               </div>
               <button
                 @click="toggleDarkMode"
@@ -193,8 +211,8 @@
 
             <div class="flex items-center justify-between">
               <div>
-                <h4 class="text-md font-medium text-gray-900 dark:text-gray-100">アニメーション</h4>
-                <p class="text-sm text-gray-600 dark:text-gray-300">UIアニメーションを有効にする</p>
+                <h4 class="text-md font-medium text-gray-900 dark:text-gray-100">{{ $t('settings.animations') }}</h4>
+                <p class="text-sm text-gray-600 dark:text-gray-300">{{ $t('settings.animationsDescription') }}</p>
               </div>
               <button
                 @click="toggleAnimations"
@@ -212,52 +230,97 @@
               </button>
             </div>
 
+
+
+            <!-- リバースモード -->
             <div class="flex items-center justify-between">
               <div>
-                <h4 class="text-md font-medium text-gray-900 dark:text-gray-100">開発者向け情報</h4>
-                <p class="text-sm text-gray-600 dark:text-gray-300">メモ一覧にデバッグ情報を表示する</p>
+                <h4 class="text-md font-medium text-gray-900 dark:text-gray-100">{{ $t('settings.reverseMode') }}</h4>
+                <p class="text-sm text-gray-600 dark:text-gray-300">{{ $t('settings.reverseModeDescription') }}</p>
               </div>
               <button
-                @click="toggleDebugInfo"
+                @click="toggleReverseMode"
                 :class="[
                   'relative inline-flex h-6 w-11 items-center rounded-full transition-colors',
-                  debugInfo ? 'bg-blue-600' : 'bg-gray-200'
+                  reverseMode ? 'bg-blue-600' : 'bg-gray-200'
                 ]"
               >
                 <span
                   :class="[
                     'inline-block h-4 w-4 transform rounded-full bg-white transition-transform',
-                    debugInfo ? 'translate-x-6' : 'translate-x-1'
+                    reverseMode ? 'translate-x-6' : 'translate-x-1'
                   ]"
                 ></span>
               </button>
             </div>
+
+            <!-- 言語選択 -->
+            <div class="flex items-center justify-between">
+              <div>
+                <h4 class="text-md font-medium text-gray-900 dark:text-gray-100">{{ $t('settings.language') }}</h4>
+                <p class="text-sm text-gray-600 dark:text-gray-300">{{ $t('settings.languageDescription') }}</p>
+              </div>
+              <select
+                v-model="currentLanguage"
+                @change="changeLanguage"
+                class="px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-100"
+              >
+                <option value="en">{{ $t('settings.languages.en') }}</option>
+                <option value="ja">{{ $t('settings.languages.ja') }}</option>
+              </select>
+            </div>
           </div>
         </div>
+      </div>
+    </div>
+
+    <!-- 保存成功通知トースト -->
+    <div
+      v-if="showSaveSuccess"
+      class="fixed bottom-4 left-4 z-50 transform transition-all duration-300 ease-in-out"
+      :class="showSaveSuccess ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0'"
+    >
+      <div class="bg-green-500 text-white px-6 py-4 rounded-lg shadow-lg flex items-center space-x-3">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+        </svg>
+        <span class="font-medium">{{ $t('settings.saveSuccess') }}</span>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted, watch, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { setLocale, getCurrentLocale } from '../i18n'
 
-const currentTheme = ref('デフォルト')
+const { t } = useI18n()
+
+const currentTheme = ref(t('themes.default.name'))
 const customCSS = ref('')
 const darkMode = ref(false)
 const animations = ref(true)
-const debugInfo = ref(false)
+const reverseMode = ref(false)
+const lineCount = ref(12)
+const scrollOffset = ref(0)
+const cssTextarea = ref(null)
+const showSaveSuccess = ref(false)
+const saveButtonText = ref(t('settings.save'))
+const saveButtonLoading = ref(false)
+const currentLanguage = ref(getCurrentLocale())
 
-const presetThemes = [
+// Create a function to get preset themes with current translations
+const getPresetThemes = () => [
   {
-    name: 'デフォルト',
-    description: 'シンプルで洗練されたデザイン',
+    name: t('themes.default.name'),
+    description: t('themes.default.description'),
     color: 'bg-blue-500',
     css: ''
   },
   {
-    name: 'モダン',
-    description: 'グラデーションとシャドウを多用',
+    name: t('themes.modern.name'),
+    description: t('themes.modern.description'),
     color: 'bg-purple-500',
     css: `
 .chat-message {
@@ -293,8 +356,8 @@ const presetThemes = [
 }`
   },
   {
-    name: 'ミニマル',
-    description: '余白を重視したシンプルなデザイン',
+    name: t('themes.minimal.name'),
+    description: t('themes.minimal.description'),
     color: 'bg-gray-500',
     css: `
 .chat-message {
@@ -320,8 +383,8 @@ const presetThemes = [
 }`
   },
   {
-    name: 'ダーク',
-    description: 'ダークテーマベースのデザイン',
+    name: t('themes.dark.name'),
+    description: t('themes.dark.description'),
     color: 'bg-gray-800',
     css: `
 .chat-message {
@@ -361,6 +424,9 @@ const presetThemes = [
   }
 ]
 
+// Create a computed property for preset themes that updates when locale changes
+const presetThemes = computed(() => getPresetThemes())
+
 const applyTheme = (theme) => {
   currentTheme.value = theme.name
   customCSS.value = theme.css
@@ -384,30 +450,57 @@ const applyCustomCSS = () => {
   }
 }
 
-const saveCustomCSS = () => {
-  localStorage.setItem('micro-note-custom-css', customCSS.value)
-  localStorage.setItem('micro-note-current-theme', currentTheme.value)
-  localStorage.setItem('micro-note-dark-mode', darkMode.value)
-  localStorage.setItem('micro-note-animations', animations.value)
-  localStorage.setItem('micro-note-debug-info', debugInfo.value)
+const saveCustomCSS = async () => {
+  // Start loading state
+  saveButtonLoading.value = true
+  saveButtonText.value = t('settings.saving')
 
-  // 設定をグローバルに公開（他のコンポーネントから参照可能）
-  window.microNoteSettings = {
-    darkMode: darkMode.value,
-    animations: animations.value,
-    debugInfo: debugInfo.value,
-    customCSS: customCSS.value
+  try {
+    // Add a small delay for loading effect
+    await new Promise(resolve => setTimeout(resolve, 500))
+
+    localStorage.setItem('micro-note-custom-css', customCSS.value)
+    localStorage.setItem('micro-note-current-theme', currentTheme.value)
+    localStorage.setItem('micro-note-dark-mode', darkMode.value)
+    localStorage.setItem('micro-note-animations', animations.value)
+    localStorage.setItem('micro-note-reverse-mode', reverseMode.value)
+
+    // Publish settings globally (accessible from other components)
+    window.microNoteSettings = {
+      darkMode: darkMode.value,
+      animations: animations.value,
+      reverseMode: reverseMode.value,
+      customCSS: customCSS.value
+    }
+
+    // Show success notification
+    showSaveSuccess.value = true
+    saveButtonText.value = t('settings.saved')
+
+    // Hide notification after 3 seconds
+    setTimeout(() => {
+      showSaveSuccess.value = false
+    }, 3000)
+
+    // Reset button text after 1 second
+    setTimeout(() => {
+      saveButtonText.value = t('settings.save')
+    }, 1000)
+
+  } catch (error) {
+    console.error('Failed to save settings:', error)
+    saveButtonText.value = t('settings.saveError')
+  } finally {
+    saveButtonLoading.value = false
   }
-
-  alert('設定が保存されました')
 }
 
 const resetCustomCSS = () => {
   customCSS.value = ''
-  currentTheme.value = 'デフォルト'
+  currentTheme.value = getPresetThemes()[0].name // Default theme
   darkMode.value = false
   animations.value = true
-  debugInfo.value = false
+  reverseMode.value = false
 
   applyCustomCSS()
   applyDarkMode()
@@ -417,13 +510,13 @@ const resetCustomCSS = () => {
   localStorage.removeItem('micro-note-current-theme')
   localStorage.removeItem('micro-note-dark-mode')
   localStorage.removeItem('micro-note-animations')
-  localStorage.removeItem('micro-note-debug-info')
+  localStorage.removeItem('micro-note-reverse-mode')
 
-  // グローバル設定も更新
+  // Update global settings too
   window.microNoteSettings = {
     darkMode: false,
     animations: true,
-    debugInfo: false,
+    reverseMode: false,
     customCSS: ''
   }
 }
@@ -440,8 +533,26 @@ const toggleAnimations = () => {
   saveCustomCSS()
 }
 
-const toggleDebugInfo = () => {
-  debugInfo.value = !debugInfo.value
+const toggleReverseMode = () => {
+  reverseMode.value = !reverseMode.value
+  saveCustomCSS()
+}
+
+const changeLanguage = (event) => {
+  const newLocale = event.target.value
+  setLocale(newLocale)
+
+  // Update current theme name to match new language
+  const currentThemeName = currentTheme.value
+  const updatedThemes = getPresetThemes()
+  const matchingTheme = updatedThemes.find(theme =>
+    theme.name === currentThemeName ||
+    theme.css === customCSS.value
+  )
+  if (matchingTheme) {
+    currentTheme.value = matchingTheme.name
+  }
+
   saveCustomCSS()
 }
 
@@ -467,25 +578,53 @@ const applyAnimations = () => {
   }
 }
 
-// カスタムCSSの変更を監視
+// Function to update line numbers
+const updateLineNumbers = () => {
+  if (customCSS.value) {
+    const lines = customCSS.value.split('\n')
+    lineCount.value = Math.max(lines.length, 12)
+  } else {
+    lineCount.value = 12
+  }
+}
+
+// Function to sync scroll
+const syncScroll = () => {
+  if (cssTextarea.value) {
+    scrollOffset.value = -cssTextarea.value.scrollTop
+  }
+}
+
+// Monitor custom CSS changes
 watch(customCSS, () => {
   applyCustomCSS()
+  updateLineNumbers()
 })
 
 onMounted(() => {
-  // 保存された設定を読み込み
+  // Load saved settings
   const savedCSS = localStorage.getItem('micro-note-custom-css')
   const savedTheme = localStorage.getItem('micro-note-current-theme')
   const savedDarkMode = localStorage.getItem('micro-note-dark-mode')
   const savedAnimations = localStorage.getItem('micro-note-animations')
-  const savedDebugInfo = localStorage.getItem('micro-note-debug-info')
+  const savedReverseMode = localStorage.getItem('micro-note-reverse-mode')
 
   if (savedCSS) {
     customCSS.value = savedCSS
   }
 
   if (savedTheme) {
-    currentTheme.value = savedTheme
+    // Try to find the theme by name or CSS content
+    const themes = getPresetThemes()
+    const matchingTheme = themes.find(theme =>
+      theme.name === savedTheme ||
+      theme.css === savedCSS
+    )
+    if (matchingTheme) {
+      currentTheme.value = matchingTheme.name
+    } else {
+      currentTheme.value = savedTheme
+    }
   }
 
   if (savedDarkMode !== null) {
@@ -496,20 +635,21 @@ onMounted(() => {
     animations.value = savedAnimations === 'true'
   }
 
-  if (savedDebugInfo !== null) {
-    debugInfo.value = savedDebugInfo === 'true'
+  if (savedReverseMode !== null) {
+    reverseMode.value = savedReverseMode === 'true'
   }
 
-  // 初期設定を適用
+  // Apply initial settings
   applyCustomCSS()
   applyDarkMode()
   applyAnimations()
+  updateLineNumbers()
 
-  // グローバル設定を公開
+  // Publish global settings
   window.microNoteSettings = {
     darkMode: darkMode.value,
     animations: animations.value,
-    debugInfo: debugInfo.value,
+    reverseMode: reverseMode.value,
     customCSS: customCSS.value
   }
 })

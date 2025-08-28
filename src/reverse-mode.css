@@ -1,0 +1,20 @@
+/* リバースモード用のスタイル */
+.chat-container {
+  display: flex;
+  flex-direction: column-reverse !important;
+}
+
+.chat-input {
+  order: 2 !important;
+  border-top: 1px solid #e5e7eb !important;
+  border-bottom: none !important;
+}
+
+.chat-messages {
+  order: 1 !important;
+}
+
+.chat-messages .space-y-6 > * + * {
+  margin-top: 0 !important;
+  margin-bottom: 1.5rem !important;
+}

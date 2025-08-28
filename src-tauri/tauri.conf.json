@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "tauri-app",
+  "productName": "Micro Note",
   "version": "0.1.0",
   "identifier": "com.shinyasaita.tauri-app",
   "build": {
@@ -12,7 +12,7 @@
   "app": {
     "windows": [
       {
-        "title": "tauri-app",
+        "title": "Micro Note",
         "width": 800,
         "height": 600
       }

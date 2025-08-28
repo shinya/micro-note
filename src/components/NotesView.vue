@@ -3,8 +3,8 @@
     <div class="max-w-6xl mx-auto p-6">
       <!-- ヘッダー -->
       <div class="text-center mb-8">
-        <h1 class="text-3xl font-bold text-gray-900 mb-2">メモ一覧</h1>
-        <p class="text-gray-600">保存されたメモを管理・検索できます</p>
+        <h1 class="text-3xl font-bold text-gray-900 mb-2">{{ $t('notes.title') }}</h1>
+        <p class="text-gray-600">{{ $t('notes.subtitle') }}</p>
       </div>
 
       <!-- 検索とフィルター -->
@@ -16,7 +16,7 @@
               <input
                 v-model="searchQuery"
                 type="text"
-                placeholder="メモを検索..."
+                :placeholder="$t('notes.searchPlaceholder')"
                 class="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200"
               />
               <svg class="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -40,31 +40,31 @@
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                 </svg>
-                <span>お気に入り</span>
+                <span>{{ $t('notes.favorite') }}</span>
               </span>
+            </button>
+
+            <!-- エクスポートボタン -->
+            <button
+              @click="exportToCSV"
+              :disabled="filteredNotes.length === 0"
+              :class="[
+                'px-6 py-3 rounded-xl font-medium transition-all duration-200 flex items-center space-x-2',
+                filteredNotes.length === 0
+                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                  : 'bg-green-600 text-white hover:bg-green-700 shadow-lg'
+              ]"
+            >
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              <span>{{ $t('notes.exportToCSV') }}</span>
             </button>
           </div>
         </div>
       </div>
 
-      <!-- デバッグ情報 -->
-      <div v-if="showDebugInfo" class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
-        <h3 class="text-sm font-medium text-yellow-800 mb-2">デバッグ情報</h3>
-        <div class="text-xs text-yellow-700 space-y-1">
-          <div>noteStore.notes: {{ typeof noteStore.notes }}</div>
-          <div>noteStore.notes length: {{ noteStore.notes?.value?.length || 0 }}</div>
-          <div>filteredNotes: {{ typeof filteredNotes }}</div>
-          <div>filteredNotes length: {{ filteredNotes?.length || 0 }}</div>
-          <div>searchQuery: "{{ searchQuery }}"</div>
-          <div>showFavorites: {{ showFavorites }}</div>
-          <div class="mt-2">
-            <strong>Individual Notes:</strong>
-            <div v-for="(note, index) in filteredNotes" :key="index" class="ml-2">
-              Note {{ index }}: ID={{ note?.id }}, Content={{ note?.content?.substring(0, 20) }}...
-            </div>
-          </div>
-        </div>
-      </div>
+
 
       <!-- メモ一覧 -->
       <div class="space-y-4">
@@ -118,7 +118,7 @@
               <button
                 @click="() => { console.log('Delete button clicked for note:', note.id); deleteNote(note.id); }"
                 class="p-2 text-red-400 bg-red-50 hover:bg-red-100 rounded-lg transition-all duration-200"
-                title="メモを削除"
+                :title="$t('notes.deleteNote')"
               >
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -139,10 +139,10 @@
             </svg>
           </div>
           <h3 class="text-lg font-medium text-gray-900 mb-2">
-            {{ searchQuery ? '検索結果がありません' : 'メモがありません' }}
+            {{ searchQuery ? $t('notes.noSearchResults') : $t('notes.noNotes') }}
           </h3>
           <p class="text-gray-500">
-            {{ searchQuery ? '別のキーワードで検索してみてください' : 'チャット画面でメモを作成してみてください' }}
+            {{ searchQuery ? $t('notes.noSearchResultsMessage') : $t('notes.noNotesMessage') }}
           </p>
         </div>
       </div>
@@ -152,19 +152,17 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useNoteStore } from '../stores/noteStore'
+import { invoke, isTauri } from '@tauri-apps/api/core'
+import { writeTextFile } from '@tauri-apps/plugin-fs'
+import { save } from '@tauri-apps/plugin-dialog'
 
 const noteStore = useNoteStore()
 const searchQuery = ref('')
 const showFavorites = ref(false)
-const showDebugInfo = ref(false)
 
-// 設定画面からデバッグ情報の表示状態を取得
-const updateDebugInfoState = () => {
-  if (window.microNoteSettings) {
-    showDebugInfo.value = window.microNoteSettings.debugInfo || false
-  }
-}
+const { t } = useI18n()
 
 const filteredNotes = computed(() => {
   let notes = noteStore.notes.value || []
@@ -195,24 +193,24 @@ const deleteNote = async (id) => {
   console.log('deleteNote called with id:', id)
   console.log('deleteNote function is defined:', typeof deleteNote)
 
-  // カスタム確認ダイアログ
+  // Custom confirmation dialog
   const note = noteStore.notes.value?.find(n => n.id === id)
   if (!note) {
     console.error('Note not found:', id)
     return
   }
 
-  const message = `以下のメモを削除しますか？\n\n内容: "${note.content.substring(0, 50)}${note.content.length > 50 ? '...' : ''}"\n\nこの操作は取り消せません。`
+  const message = `${t('notes.deleteConfirm')}\n\n${t('notes.deleteConfirmMessage')}`
 
-  // Tauriアプリケーションではconfirm()が制限されている可能性があるため、
-  // 直接削除を実行するか、シンプルな確認を行う
+  // In Tauri applications, confirm() might be restricted,
+  // so we proceed with deletion directly or perform a simple confirmation
   try {
     console.log('Proceeding with deletion...')
     await noteStore.deleteNote(id)
     console.log('Note deleted successfully:', id)
   } catch (error) {
     console.error('Failed to delete note:', error)
-    alert('メモの削除に失敗しました')
+    alert(t('notes.deleteError'))
   }
 }
 
@@ -221,7 +219,7 @@ const copyToClipboard = async (text) => {
     if (navigator.clipboard) {
       await navigator.clipboard.writeText(text)
     } else {
-      // フォールバック
+      // Fallback
       const textArea = document.createElement('textarea')
       textArea.value = text
       document.body.appendChild(textArea)
@@ -229,15 +227,106 @@ const copyToClipboard = async (text) => {
       document.execCommand('copy')
       document.body.removeChild(textArea)
     }
-    alert('クリップボードにコピーしました')
+    alert(t('notes.copiedToClipboard'))
   } catch (error) {
     console.error('Failed to copy to clipboard:', error)
-    alert('コピーに失敗しました')
+    alert(t('notes.copyError'))
   }
 }
 
 const formatTime = (timestamp) => {
   return new Date(timestamp).toLocaleString('ja-JP')
+}
+
+const exportToCSV = async () => {
+  if (filteredNotes.value.length === 0) {
+    alert(t('notes.exportNoNotes'))
+    return
+  }
+
+  try {
+    // CSV headers
+    const headers = ['ID', t('notes.csvContent'), t('notes.csvTimestamp'), t('notes.csvFavorite')]
+
+    // Create CSV data
+    const csvData = filteredNotes.value.map(note => [
+      note.id,
+      // Escape line breaks and commas in content
+      `"${note.content.replace(/"/g, '""').replace(/\n/g, ' ')}"`,
+      formatTime(note.timestamp),
+      note.is_favorite ? t('common.yes') : t('common.no')
+    ])
+
+    // Create CSV string
+    const csvContent = [
+      headers.join(','),
+      ...csvData.map(row => row.join(','))
+    ].join('\n')
+
+    // Add BOM for UTF-8 encoding
+    const BOM = '\uFEFF'
+    const csvString = BOM + csvContent
+
+    if (isTauri()) {
+      // For Tauri application
+      try {
+        const now = new Date()
+        const dateStr = now.toISOString().slice(0, 19).replace(/:/g, '-')
+        const defaultFileName = `micro-notes-${dateStr}.csv`
+
+        // Show file save dialog
+        const filePath = await save({
+          title: t('notes.exportDialogTitle'),
+          filters: [
+            {
+              name: 'CSV Files',
+              extensions: ['csv']
+            }
+          ],
+          defaultPath: defaultFileName
+        })
+
+        if (filePath) {
+          await writeTextFile(filePath, csvString)
+          alert(t('notes.exportSuccess', { count: filteredNotes.value.length, path: filePath }))
+        } else {
+          alert(t('notes.exportCanceled'))
+        }
+      } catch (error) {
+        console.error('Tauri CSV export failed:', error)
+        alert(t('notes.exportError', { error: error }))
+      }
+    } else {
+      // For web browser
+      const now = new Date()
+      const dateStr = now.toISOString().slice(0, 19).replace(/:/g, '-')
+      const fileName = `micro-notes-${dateStr}.csv`
+
+      // Blobの作成とダウンロード
+      const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' })
+      const link = document.createElement('a')
+
+      if (link.download !== undefined) {
+        const url = URL.createObjectURL(blob)
+        link.setAttribute('href', url)
+        link.setAttribute('download', fileName)
+        link.style.visibility = 'hidden'
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+        URL.revokeObjectURL(url)
+
+        // Success message
+        alert(t('notes.exportSuccess', { count: filteredNotes.value.length }))
+      } else {
+        // Fallback for older browsers
+        window.open('data:text/csv;charset=utf-8,' + encodeURIComponent(csvString))
+      }
+    }
+  } catch (error) {
+    console.error('CSV export failed:', error)
+    alert(t('notes.exportError'))
+  }
 }
 
 const loadNotes = async () => {
@@ -267,18 +356,10 @@ onMounted(async () => {
   console.log('NotesView: Component mounted')
   await loadNotes()
 
-  // 強制的に再取得（デバッグ用）
+  // Force refresh (for debugging)
   setTimeout(async () => {
     console.log('NotesView: Forcing refresh after 1 second...')
     await loadNotes()
-  }, 1000)
-
-  // デバッグ情報の表示状態を初期化
-  updateDebugInfoState()
-
-  // 設定の変更を監視（1秒ごとにチェック）
-  setInterval(() => {
-    updateDebugInfoState()
   }, 1000)
 })
 </script>
