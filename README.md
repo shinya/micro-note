@@ -1,5 +1,7 @@
 # Micro Note
 
+![image](image.png)
+
 [日本語版はこちら](README_ja.md)
 
 A desktop application for saving and managing notes with a chat-like UI.
