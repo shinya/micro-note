@@ -64,24 +64,26 @@ async fn get_notes(state: State<'_, AppState>) -> Result<Vec<Note>, String> {
 
     println!("Database query prepared successfully");
 
-            let notes = stmt
-            .query_map([], |row| {
-                let id: String = row.get(0)?;
-                let content: String = row.get(1)?;
-                let timestamp: String = row.get(2)?;
-                let is_favorite_int: i32 = row.get(3)?;
+    let notes = stmt
+        .query_map([], |row| {
+            let id: String = row.get(0)?;
+            let content: String = row.get(1)?;
+            let timestamp: String = row.get(2)?;
+            let is_favorite_int: i32 = row.get(3)?;
 
-                println!("Processing row - id: {}, content: {}, timestamp: {}, is_favorite_int: {}",
-                        id, content, timestamp, is_favorite_int);
+            println!(
+                "Processing row - id: {}, content: {}, timestamp: {}, is_favorite_int: {}",
+                id, content, timestamp, is_favorite_int
+            );
 
-                Ok(Note {
-                    id,
-                    content,
-                    timestamp,
-                    is_favorite: is_favorite_int != 0,
-                })
+            Ok(Note {
+                id,
+                content,
+                timestamp,
+                is_favorite: is_favorite_int != 0,
             })
-            .map_err(|e| e.to_string())?;
+        })
+        .map_err(|e| e.to_string())?;
 
     let mut result = Vec::new();
     for note in notes {
@@ -112,17 +114,11 @@ async fn update_note_favorite(
 }
 
 #[tauri::command]
-async fn delete_note(
-    id: String,
-    state: State<'_, AppState>,
-) -> Result<(), String> {
+async fn delete_note(id: String, state: State<'_, AppState>) -> Result<(), String> {
     let db = state.db.lock().unwrap();
 
-    db.execute(
-        "DELETE FROM notes WHERE id = ?1",
-        rusqlite::params![id],
-    )
-    .map_err(|e| e.to_string())?;
+    db.execute("DELETE FROM notes WHERE id = ?1", rusqlite::params![id])
+        .map_err(|e| e.to_string())?;
 
     println!("Note deleted successfully: {}", id);
     Ok(())
@@ -133,15 +129,17 @@ async fn copy_to_clipboard(text: String) -> Result<(), String> {
     // クリップボードにコピー（macOS用）
     #[cfg(target_os = "macos")]
     {
-        use std::process::Command;
         use std::io::Write;
+        use std::process::Command;
         let mut child = Command::new("pbcopy")
             .stdin(std::process::Stdio::piped())
             .spawn()
             .map_err(|e| e.to_string())?;
 
         if let Some(mut stdin) = child.stdin.take() {
-            stdin.write_all(text.as_bytes()).map_err(|e| e.to_string())?;
+            stdin
+                .write_all(text.as_bytes())
+                .map_err(|e| e.to_string())?;
         }
 
         child.wait().map_err(|e| e.to_string())?;
@@ -150,15 +148,17 @@ async fn copy_to_clipboard(text: String) -> Result<(), String> {
     // Windows用
     #[cfg(target_os = "windows")]
     {
-        use std::process::Command;
         use std::io::Write;
+        use std::process::Command;
         let mut child = Command::new("clip")
             .stdin(std::process::Stdio::piped())
             .spawn()
             .map_err(|e| e.to_string())?;
 
         if let Some(mut stdin) = child.stdin.take() {
-            stdin.write_all(text.as_bytes()).map_err(|e| e.to_string())?;
+            stdin
+                .write_all(text.as_bytes())
+                .map_err(|e| e.to_string())?;
         }
 
         child.wait().map_err(|e| e.to_string())?;
@@ -167,8 +167,8 @@ async fn copy_to_clipboard(text: String) -> Result<(), String> {
     // Linux用
     #[cfg(target_os = "linux")]
     {
-        use std::process::Command;
         use std::io::Write;
+        use std::process::Command;
         let mut child = Command::new("xclip")
             .args(&["-selection", "clipboard"])
             .stdin(std::process::Stdio::piped())
@@ -176,7 +176,9 @@ async fn copy_to_clipboard(text: String) -> Result<(), String> {
             .map_err(|e| e.to_string())?;
 
         if let Some(mut stdin) = child.stdin.take() {
-            stdin.write_all(text.as_bytes()).map_err(|e| e.to_string())?;
+            stdin
+                .write_all(text.as_bytes())
+                .map_err(|e| e.to_string())?;
         }
 
         child.wait().map_err(|e| e.to_string())?;
@@ -185,13 +187,12 @@ async fn copy_to_clipboard(text: String) -> Result<(), String> {
     Ok(())
 }
 
-
-
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let app_state = AppState::new().expect("Failed to initialize database");
 
     tauri::Builder::default()
+        .plugin(tauri_plugin_positioner::init())
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_dialog::init())

@@ -7,6 +7,7 @@
           @click="closeWindow"
           class="w-3 h-3 bg-red-500 rounded-full hover:bg-red-600 transition-colors duration-200 flex items-center justify-center group"
           title="閉じる"
+          data-tauri-drag-region="false"
         >
           <svg class="w-2 h-2 text-red-500 group-hover:text-white opacity-0 group-hover:opacity-100 transition-opacity duration-200" fill="currentColor" viewBox="0 0 24 24">
             <path d="M6 6l12 12M6 18L18 6"/>
@@ -16,6 +17,7 @@
           @click="minimizeWindow"
           class="w-3 h-3 bg-yellow-500 rounded-full hover:bg-yellow-600 transition-colors duration-200 flex items-center justify-center group"
           title="最小化"
+          data-tauri-drag-region="false"
         >
           <svg class="w-2 h-2 text-yellow-500 group-hover:text-white opacity-0 group-hover:opacity-100 transition-opacity duration-200" fill="currentColor" viewBox="0 0 24 24">
             <path d="M6 12h12"/>
@@ -25,6 +27,7 @@
           @click="maximizeWindow"
           class="w-3 h-3 bg-green-500 rounded-full hover:bg-green-600 transition-colors duration-200 flex items-center justify-center group"
           title="最大化"
+          data-tauri-drag-region="false"
         >
           <svg class="w-2 h-2 text-green-500 group-hover:text-white opacity-0 group-hover:opacity-100 transition-opacity duration-200" fill="currentColor" viewBox="0 0 24 24">
             <path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"/>
@@ -33,12 +36,12 @@
       </div>
 
       <!-- 中央: アプリタイトル（ドラッグ可能エリア） -->
-      <div class="flex-1 text-center drag-area">
+      <div class="flex-1 text-center drag-area" data-tauri-drag-region="true">
         <h1 class="app-title text-sm font-semibold text-gray-800 dark:text-white py-1">Micro Note</h1>
       </div>
 
       <!-- 右側: スペーサー（左右対称にするため） -->
-      <div class="w-20"></div>
+      <div class="w-20" data-tauri-drag-region="true"></div>
     </div>
   </div>
 </template>
@@ -145,7 +148,6 @@ const maximizeWindow = async () => {
 
 /* ドラッグ可能エリア */
 .drag-area {
-  -webkit-app-region: drag; /* macOS でドラッグ可能にする */
   cursor: grab; /* ドラッグ可能を示すカーソル */
   padding: 0;
 }
@@ -156,7 +158,6 @@ const maximizeWindow = async () => {
 
 /* ボタンはドラッグ不可 */
 .custom-window-bar button {
-  -webkit-app-region: no-drag;
   cursor: pointer;
 }
 
@@ -193,7 +194,6 @@ const maximizeWindow = async () => {
 
 /* タイトルテキストもドラッグ可能にする */
 .drag-area h1 {
-  -webkit-app-region: drag;
   pointer-events: none; /* テキストの選択を防ぐ */
 }
 </style>
