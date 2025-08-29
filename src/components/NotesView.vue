@@ -50,7 +50,7 @@
         <div
           v-for="note in filteredNotes"
           :key="note.id"
-          class="bg-white rounded-xl shadow-md p-3 hover:shadow-lg transition-all duration-200 cursor-pointer"
+          class="note-item bg-white rounded-xl shadow-md p-3 hover:shadow-lg transition-all duration-200 cursor-pointer"
           @click="copyToClipboard(note.content)"
           :title="$t('notes.clickToCopy')"
         >
@@ -271,3 +271,9 @@ onMounted(async () => {
   }, 1000)
 })
 </script>
+
+<style scoped>
+.note-item {
+  word-break: break-all;
+}
+</style>

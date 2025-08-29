@@ -3,6 +3,7 @@ import { ref, onMounted, watch } from 'vue'
 import ChatView from './components/ChatView.vue'
 import NotesView from './components/NotesView.vue'
 import SettingsView from './components/SettingsView.vue'
+import WindowBar from './components/WindowBar.vue'
 
 const currentView = ref('chat')
 const darkMode = ref(false)
@@ -116,9 +117,12 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+  <div class="app-container min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+    <!-- カスタムウィンドウバー -->
+    <WindowBar />
+
     <!-- ヘッダー -->
-    <header class="bg-white/80 backdrop-blur-md shadow-lg border-b border-white/20 sticky top-0 z-50 dark:bg-gray-800/80 dark:border-gray-700">
+    <header class="fixed-header bg-white/80 backdrop-blur-md shadow-lg border-b border-white/20 z-40 dark:bg-gray-800/80 dark:border-gray-700">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center h-16">
           <div class="flex items-center space-x-3">
@@ -197,7 +201,7 @@ onMounted(() => {
     </header>
 
     <!-- メインコンテンツ -->
-    <main class="max-w-7xl mx-auto">
+    <main class="main-content max-w-7xl mx-auto">
       <!-- チャット画面 -->
       <ChatView v-if="currentView === 'chat'" @note-added="handleNoteAdded" />
 
@@ -224,6 +228,40 @@ body {
 main {
   margin: 0;
   padding: 0;
+}
+
+/* 角丸ウィンドウのスタイル */
+.app-container {
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* macOS風の角丸ウィンドウ */
+@media (prefers-color-scheme: light) {
+  .app-container {
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .app-container {
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+  }
+}
+
+/* 固定ヘッダーのスタイル */
+.fixed-header {
+  position: fixed;
+  top: 29px; /* WindowBarの高さ分下げる */
+  left: 0;
+  right: 0;
+  z-index: 40;
+}
+
+/* メインコンテンツの位置調整 */
+.main-content {
+  padding-top: 94px; /* WindowBar + Header の高さ分のパディング */
 }
 
 /* カスタムスクロールバー */

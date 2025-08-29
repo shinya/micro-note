@@ -60,7 +60,7 @@
           <template v-for="note in (reverseMode ? [...(noteStore.notes?.value || [])].reverse() : (noteStore.notes?.value || []))" :key="note?.id || Math.random()">
             <div
               v-if="note && note.id && note.content"
-              class="flex items-start space-x-4"
+              class="note-item flex items-start space-x-4"
             >
               <div class="flex-shrink-0">
                 <div class="w-10 h-10 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full flex items-center justify-center">
@@ -71,7 +71,7 @@
               </div>
               <div class="flex-1 min-w-0">
                 <div class="bg-white rounded-2xl px-6 py-4 shadow-lg border border-gray-100 chat-message">
-                  <p class="text-gray-900 whitespace-pre-wrap leading-relaxed">{{ note.content }}</p>
+                  <p class="text-gray-900 whitespace-pre-wrap leading-relaxed text-sm">{{ note.content }}</p>
                 </div>
                 <div class="mt-3 flex items-center space-x-3">
                   <span class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
@@ -252,7 +252,9 @@ onMounted(() => {
   background-color: #f0f0f0;
 }
 
-
+.note-item {
+  word-break: break-all;
+}
 
 .dark .input-area {
   background-color: #303641;
