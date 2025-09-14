@@ -25,3 +25,6 @@ dist-ssr
 
 # SQLite
 *.db
+
+# Environment files with sensitive information
+.env.notarization

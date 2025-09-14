@@ -19,7 +19,10 @@ struct AppState {
 
 impl AppState {
     fn new() -> Result<Self> {
-        let db = Connection::open("notes.db")?;
+        let app_data_dir = dirs::data_dir().unwrap().join("com.pemomomo.micro-note");
+        std::fs::create_dir_all(&app_data_dir).unwrap();
+        let db_path = app_data_dir.join("notes.db");
+        let db = Connection::open(db_path)?;
 
         // テーブルを作成
         db.execute(
