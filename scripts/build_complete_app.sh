@@ -5,6 +5,11 @@
 
 set -e
 
+# スクリプトのディレクトリを取得し、プロジェクトルートに移動
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+cd "$PROJECT_ROOT"
+
 # 色付きの出力用
 RED='\033[0;31m'
 GREEN='\033[0;32m'

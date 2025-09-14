@@ -5,6 +5,11 @@
 
 set -e
 
+# スクリプトのディレクトリを取得し、プロジェクトルートに移動
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+cd "$PROJECT_ROOT"
+
 # 色付きの出力用
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -106,9 +111,9 @@ echo ""
 
 echo -e "${GREEN}=== ビルド完了 ===${NC}"
 echo -e "${GREEN}アプリパス: $APP_PATH${NC}"
-echo -e "${GREEN}DMGパス: src-tauri/target/release/bundle/dmg/Micro Note_0.1.0_aarch64.dmg${NC}"
+echo -e "${GREEN}DMGパス: src-tauri/target/release/bundle/dmg/Micro Note_0.1.1_aarch64.dmg${NC}"
 echo ""
 echo -e "${BLUE}=== 使用方法 ===${NC}"
 echo -e "${BLUE}1. アプリを起動: open \"$APP_PATH\"${NC}"
-echo -e "${BLUE}2. DMGをマウント: open \"src-tauri/target/release/bundle/dmg/Micro Note_0.1.0_aarch64.dmg\"${NC}"
+echo -e "${BLUE}2. DMGをマウント: open \"src-tauri/target/release/bundle/dmg/Micro Note_0.1.1_aarch64.dmg\"${NC}"
 echo -e "${BLUE}3. アプリの状態確認: ./verify_app.sh${NC}"

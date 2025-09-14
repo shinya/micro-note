@@ -133,7 +133,7 @@ open /path/to/micro-note/src-tauri/target/release/bundle/macos/Micro\ Note.app
 
 #### 方法 3: DMG ファイルからインストール
 
-1. `src-tauri/target/release/bundle/dmg/Micro Note_0.1.0_aarch64.dmg` をダブルクリック
+1. `src-tauri/target/release/bundle/dmg/Micro Note_0.1.1_aarch64.dmg` をダブルクリック
 2. マウントされたディスクイメージから `Micro Note.app` を `Applications` フォルダにドラッグ&ドロップ
 3. `Applications` フォルダから `Micro Note.app` を起動
 
