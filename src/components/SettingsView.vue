@@ -270,6 +270,7 @@
               </select>
             </div>
 
+
             <!-- データエクスポート -->
             <div class="flex items-center justify-between">
               <div>
@@ -573,7 +574,7 @@ const exportToCSV = async () => {
 
   try {
     // Get notes from the store
-    const { invoke } = await import('@tauri-apps/api')
+    const { invoke } = await import('@tauri-apps/api/core')
     const notes = await invoke('get_notes')
 
     if (!notes || notes.length === 0) {
@@ -644,6 +645,7 @@ const changeLanguage = (event) => {
 
   saveCustomCSS()
 }
+
 
 const applyDarkMode = () => {
   const html = document.documentElement
@@ -741,6 +743,7 @@ onMounted(() => {
     reverseMode: reverseMode.value,
     customCSS: customCSS.value
   }
+
 })
 </script>
 

@@ -2,6 +2,8 @@ use rusqlite::{Connection, Result};
 use serde::{Deserialize, Serialize};
 use std::sync::Mutex;
 use tauri::State;
+use std::net::{TcpListener, SocketAddr};
+use std::io;
 
 use uuid::Uuid;
 
@@ -190,6 +192,48 @@ async fn copy_to_clipboard(text: String) -> Result<(), String> {
     Ok(())
 }
 
+/// 動的ポート割り当て機能
+/// 30011-30030の範囲でポートを探し、見つからない場合は10000以降で空いているポートを探す
+fn find_available_port() -> Result<u16, io::Error> {
+    // まず30011-30030の範囲でポートを探す
+    for port in 30011..=30030 {
+        if let Ok(listener) = TcpListener::bind(SocketAddr::from(([127, 0, 0, 1], port))) {
+            // ポートが使用可能であることを確認
+            drop(listener); // リスナーを閉じてポートを解放
+            return Ok(port);
+        }
+    }
+
+    // 30011-30030で見つからない場合は、10000以降で空いているポートを探す
+    for port in 10000..65535 {
+        if let Ok(listener) = TcpListener::bind(SocketAddr::from(([127, 0, 0, 1], port))) {
+            // ポートが使用可能であることを確認
+            drop(listener); // リスナーを閉じてポートを解放
+            return Ok(port);
+        }
+    }
+
+    Err(io::Error::new(io::ErrorKind::AddrInUse, "No available ports found"))
+}
+
+/// ポート情報を取得するコマンド
+#[tauri::command]
+async fn get_port_info() -> Result<u16, String> {
+    println!("ポート検索を開始します...");
+
+    match find_available_port() {
+        Ok(port) => {
+            println!("利用可能なポートが見つかりました: {}", port);
+            Ok(port)
+        },
+        Err(e) => {
+            let error_msg = format!("ポート検索に失敗しました: {}", e);
+            println!("{}", error_msg);
+            Err(error_msg)
+        }
+    }
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let app_state = AppState::new().expect("Failed to initialize database");
@@ -205,7 +249,8 @@ pub fn run() {
             get_notes,
             update_note_favorite,
             delete_note,
-            copy_to_clipboard
+            copy_to_clipboard,
+            get_port_info
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
