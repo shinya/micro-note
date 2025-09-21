@@ -152,7 +152,6 @@ open /path/to/micro-note/src-tauri/target/release/bundle/macos/Micro\ Note.app
    ```
 
 2. **Launch from Application File**
-
    - Click "Allow" when the security dialog appears
    - Or check **System Settings** → **Privacy & Security** for blocked application settings
 

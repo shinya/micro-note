@@ -150,7 +150,6 @@ open /path/to/micro-note/src-tauri/target/release/bundle/macos/Micro\ Note.app
    ```
 
 2. **アプリケーションファイルから起動**
-
    - アプリを起動した時に表示されるセキュリティダイアログで「許可」をクリック
    - または **システム設定** → **プライバシーとセキュリティ** でアプリケーションの許可設定を確認
 

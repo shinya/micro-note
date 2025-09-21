@@ -49,7 +49,11 @@
 }
 
 .dark .bg-gradient-to-b.from-gray-50\/50.to-white\/50 {
-  background: linear-gradient(to bottom, rgba(51, 65, 85, 0.5), rgba(30, 41, 59, 0.5));
+  background: linear-gradient(
+    to bottom,
+    rgba(51, 65, 85, 0.5),
+    rgba(30, 41, 59, 0.5)
+  );
 }
 
 /* テキスト色の変更 */
@@ -80,7 +84,9 @@
 
 /* シャドウの調整 */
 .dark .shadow-lg {
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+  box-shadow:
+    0 10px 15px -3px rgba(0, 0, 0, 0.3),
+    0 4px 6px -2px rgba(0, 0, 0, 0.2);
 }
 
 /* プレースホルダーの色調整 */
@@ -157,7 +163,9 @@
 }
 
 .dark .shadow-xl {
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 10px 10px -5px rgba(0, 0, 0, 0.3) !important;
+  box-shadow:
+    0 20px 25px -5px rgba(0, 0, 0, 0.4),
+    0 10px 10px -5px rgba(0, 0, 0, 0.3) !important;
 }
 
 /* 設定画面のプレビューエリア */
