@@ -37,9 +37,7 @@
       "icons/micro-note.icns",
       "icons/micro-note.ico"
     ],
-    "resources": [
-      "../dist"
-    ],
+    "resources": ["../dist"],
     "macOS": {
       "signingIdentity": "Developer ID Application: SHINYA SAITA (RNGXZZHG98)"
     }

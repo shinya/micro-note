@@ -1,0 +1,15 @@
+node_modules/
+dist/
+src-tauri/target/
+*.min.js
+coverage/
+.nyc_output/
+*.config.js
+*.config.ts
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+*.db
+*.sqlite
+*.sqlite3
+

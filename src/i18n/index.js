@@ -1,11 +1,12 @@
 import { createI18n } from 'vue-i18n'
+
 import en from '../locales/en'
 import ja from '../locales/ja'
 
 // サポートされている言語
 export const supportedLocales = {
   en: 'English',
-  ja: '日本語'
+  ja: '日本語',
 }
 
 // デフォルト言語
@@ -14,7 +15,7 @@ export const defaultLocale = 'en'
 // 言語ファイルの動的インポート
 const messages = {
   en,
-  ja
+  ja,
 }
 
 // i18nインスタンスの作成
@@ -24,7 +25,7 @@ const i18n = createI18n({
   fallbackLocale: defaultLocale,
   messages,
   missingWarn: false,
-  fallbackWarn: false
+  fallbackWarn: false,
 })
 
 // 言語を変更する関数

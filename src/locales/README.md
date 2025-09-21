@@ -35,20 +35,20 @@ mkdir src/locales/fr
 export default {
   // Common
   common: {
-    save: "保存",
-    cancel: "キャンセル",
+    save: '保存',
+    cancel: 'キャンセル',
     // ... 他の翻訳
   },
 
   // Navigation
   navigation: {
-    chat: "チャット",
-    notes: "メモ一覧",
-    settings: "設定",
+    chat: 'チャット',
+    notes: 'メモ一覧',
+    settings: '設定',
   },
 
   // ... 他のセクション
-};
+}
 ```
 
 ### 3. i18n 設定を更新
@@ -57,21 +57,21 @@ export default {
 
 ```javascript
 // 1. 言語ファイルをインポート
-import fr from "../locales/fr";
+import fr from '../locales/fr'
 
 // 2. サポートされている言語に追加
 export const supportedLocales = {
-  en: "English",
-  ja: "日本語",
-  fr: "Français", // 追加
-};
+  en: 'English',
+  ja: '日本語',
+  fr: 'Français', // 追加
+}
 
 // 3. メッセージに追加
 const messages = {
   en,
   ja,
   fr, // 追加
-};
+}
 ```
 
 ### 4. 設定画面に言語オプションを追加
