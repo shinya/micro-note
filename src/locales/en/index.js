@@ -26,7 +26,7 @@ export default {
     apply: 'Apply',
     settings: 'Settings',
     help: 'Help',
-    about: 'About',
+    about: 'About'
   },
 
   // Navigation
@@ -34,6 +34,7 @@ export default {
     chat: 'Chat',
     notes: 'Notes',
     settings: 'Settings',
+    timeline: 'Timeline'
   },
 
   // Chat
@@ -52,8 +53,8 @@ export default {
     characterCount: '{count} characters',
     savedAsNote: 'Saved as note',
     createFirstNote: 'Create your first note',
-    createFirstNoteDescription:
-      'Enter the content you want to save in the text area below',
+    createFirstNoteDescription: 'Enter the content you want to save in the input area above',
+
   },
 
   // Notes
@@ -62,7 +63,7 @@ export default {
     subtitle: 'Manage and search your saved notes',
     searchPlaceholder: 'Search notes...',
     noNotes: 'No notes yet',
-    noNotesMessage: 'Create notes in the chat screen',
+    noNotesMessage: 'Type a note in the input area above',
     noSearchResults: 'No search results',
     noSearchResultsMessage: 'Try different keywords',
     favorite: 'Favorite',
@@ -86,10 +87,11 @@ export default {
       timestamp: 'Created At',
       favorite: 'Favorite',
       yes: 'Yes',
-      no: 'No',
+      no: 'No'
     },
     deleteError: 'Failed to delete note',
     copyError: 'Failed to copy to clipboard',
+
   },
 
   // Settings
@@ -97,12 +99,10 @@ export default {
     title: 'Settings',
     subtitle: 'Customize your application settings',
     chatUICustomization: 'Chat UI Customization',
-    chatUICustomizationDescription:
-      'Customize the appearance of the chat screen with CSS',
+    chatUICustomizationDescription: 'Customize the appearance of the chat screen with CSS',
     presetThemes: 'Preset Themes',
     customCSS: 'Custom CSS',
-    customCSSDescription:
-      'CSS changes are applied immediately. Click Save to persist.',
+    customCSSDescription: 'CSS changes are applied immediately. Click Save to persist.',
     reset: 'Reset',
     save: 'Save',
     saving: 'Saving...',
@@ -112,12 +112,20 @@ export default {
     exportError: 'Export failed',
     dataExport: 'Data Export',
     dataExportDescription: 'Export all your notes to CSV format',
+    import: 'Import',
+    importing: 'Importing...',
+    importSuccess: 'Import successful',
+    importError: 'Import failed',
+    dataImport: 'Data Import',
+    dataImportDescription: 'Import notes from a CSV file',
+    importInvalidFormat: 'Invalid CSV format. Header must be "id,content,timestamp,is_favorite".',
+    importNoData: 'No data to import',
+    importComplete: '{count} notes imported successfully',
     saved: 'Saved',
     saveSuccess: 'Settings saved successfully',
     saveError: 'Failed to save settings',
     preview: 'Preview',
-    previewDescription:
-      'The selected theme will be applied to the preview above. Changing the theme will change the appearance of the chat screen.',
+    previewDescription: 'The selected theme will be applied to the preview above. Changing the theme will change the appearance of the chat screen.',
     previewMessage: 'This is a preview message',
     otherSettings: 'Other Settings',
     darkMode: 'Dark Mode',
@@ -126,34 +134,33 @@ export default {
     animationsDescription: 'Enable UI animations',
 
     reverseMode: 'Reverse Mode',
-    reverseModeDescription:
-      'Move input field to bottom and display notes in reverse order',
+    reverseModeDescription: 'Move input field to bottom and display notes in reverse order',
     language: 'Language',
     languageDescription: 'Select your preferred language',
     languages: {
       en: 'English',
-      ja: 'Japanese',
-    },
+      ja: 'Japanese'
+    }
   },
 
   // Themes
   themes: {
     default: {
       name: 'Default',
-      description: 'Simple and refined design',
+      description: 'Simple and refined design'
     },
     modern: {
       name: 'Modern',
-      description: 'Uses gradients and shadows extensively',
+      description: 'Uses gradients and shadows extensively'
     },
     minimal: {
       name: 'Minimal',
-      description: 'Simple design emphasizing whitespace',
+      description: 'Simple design emphasizing whitespace'
     },
     dark: {
       name: 'Dark',
-      description: 'Dark theme based design',
-    },
+      description: 'Dark theme based design'
+    }
   },
 
   // Time formats
@@ -163,7 +170,7 @@ export default {
     hoursAgo: '{count} hours ago',
     daysAgo: '{count} days ago',
     today: 'Today',
-    yesterday: 'Yesterday',
+    yesterday: 'Yesterday'
   },
 
   // Errors
@@ -173,6 +180,6 @@ export default {
     fileNotFound: 'File not found',
     permissionDenied: 'Permission denied',
     invalidInput: 'Invalid input',
-    unknown: 'Unknown error',
-  },
+    unknown: 'Unknown error'
+  }
 }

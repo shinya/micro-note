@@ -26,7 +26,7 @@ export default {
     apply: '適用',
     settings: '設定',
     help: 'ヘルプ',
-    about: 'について',
+    about: 'について'
   },
 
   // Navigation
@@ -34,6 +34,7 @@ export default {
     chat: 'チャット',
     notes: 'メモ一覧',
     settings: '設定',
+    timeline: 'タイムライン'
   },
 
   // Chat
@@ -52,8 +53,8 @@ export default {
     characterCount: '{count} 文字',
     savedAsNote: 'メモとして保存済み',
     createFirstNote: '最初のメモを作成しましょう',
-    createFirstNoteDescription:
-      '下のテキストエリアにメモしたい内容を入力してください',
+    createFirstNoteDescription: '上の入力エリアにメモしたい内容を入力してください',
+
   },
 
   // Notes
@@ -62,7 +63,7 @@ export default {
     subtitle: '保存されたメモを管理・検索できます',
     searchPlaceholder: 'メモを検索...',
     noNotes: 'メモがありません',
-    noNotesMessage: 'チャット画面でメモを作成してみてください',
+    noNotesMessage: '上の入力エリアにメモを入力してみてください',
     noSearchResults: '検索結果がありません',
     noSearchResultsMessage: '別のキーワードで検索してみてください',
     favorite: 'お気に入り',
@@ -86,10 +87,11 @@ export default {
       timestamp: '作成日時',
       favorite: 'お気に入り',
       yes: 'はい',
-      no: 'いいえ',
+      no: 'いいえ'
     },
     deleteError: 'メモの削除に失敗しました',
     copyError: 'コピーに失敗しました',
+
   },
 
   // Settings
@@ -97,12 +99,10 @@ export default {
     title: '設定',
     subtitle: 'アプリケーションのカスタマイズ設定',
     chatUICustomization: 'チャットUIカスタマイズ',
-    chatUICustomizationDescription:
-      'チャット画面の見た目をCSSでカスタマイズできます',
+    chatUICustomizationDescription: 'チャット画面の見た目をCSSでカスタマイズできます',
     presetThemes: 'プリセットテーマ',
     customCSS: 'カスタムCSS',
-    customCSSDescription:
-      'CSSの変更は即座に反映されます。保存ボタンを押すと永続化されます。',
+    customCSSDescription: 'CSSの変更は即座に反映されます。保存ボタンを押すと永続化されます。',
     reset: 'リセット',
     save: '保存',
     saving: '保存中...',
@@ -112,12 +112,20 @@ export default {
     exportError: 'エクスポート失敗',
     dataExport: 'データエクスポート',
     dataExportDescription: 'すべてのメモをCSV形式でエクスポート',
+    import: 'インポート',
+    importing: 'インポート中...',
+    importSuccess: 'インポート成功',
+    importError: 'インポート失敗',
+    dataImport: 'データインポート',
+    dataImportDescription: 'CSVファイルからメモをインポート',
+    importInvalidFormat: 'CSVファイルのフォーマットが正しくありません。ヘッダーが「id,content,timestamp,is_favorite」である必要があります。',
+    importNoData: 'インポートするデータがありません',
+    importComplete: '{count}件のメモをインポートしました',
     saved: '保存完了',
     saveSuccess: '設定が保存されました',
     saveError: '設定の保存に失敗しました',
     preview: 'プレビュー',
-    previewDescription:
-      '上記のプレビューに選択したテーマが適用されます。テーマを変更すると、チャット画面の見た目が変わります。',
+    previewDescription: '上記のプレビューに選択したテーマが適用されます。テーマを変更すると、チャット画面の見た目が変わります。',
     previewMessage: 'これはプレビューメッセージです',
     otherSettings: 'その他の設定',
     darkMode: 'ダークモード',
@@ -131,28 +139,28 @@ export default {
     languageDescription: 'お好みの言語を選択してください',
     languages: {
       en: 'English',
-      ja: '日本語',
-    },
+      ja: '日本語'
+    }
   },
 
   // Themes
   themes: {
     default: {
       name: 'デフォルト',
-      description: 'シンプルで洗練されたデザイン',
+      description: 'シンプルで洗練されたデザイン'
     },
     modern: {
       name: 'モダン',
-      description: 'グラデーションとシャドウを多用',
+      description: 'グラデーションとシャドウを多用'
     },
     minimal: {
       name: 'ミニマル',
-      description: '余白を重視したシンプルなデザイン',
+      description: '余白を重視したシンプルなデザイン'
     },
     dark: {
       name: 'ダーク',
-      description: 'ダークテーマベースのデザイン',
-    },
+      description: 'ダークテーマベースのデザイン'
+    }
   },
 
   // Time formats
@@ -162,7 +170,7 @@ export default {
     hoursAgo: '{count}時間前',
     daysAgo: '{count}日前',
     today: '今日',
-    yesterday: '昨日',
+    yesterday: '昨日'
   },
 
   // Errors
@@ -172,6 +180,6 @@ export default {
     fileNotFound: 'ファイルが見つかりません',
     permissionDenied: '権限がありません',
     invalidInput: '無効な入力です',
-    unknown: '不明なエラー',
-  },
+    unknown: '不明なエラー'
+  }
 }
