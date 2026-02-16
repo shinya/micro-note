@@ -1,5 +1,7 @@
 use rusqlite::Connection;
 use serde::{Deserialize, Serialize};
+use std::io;
+use std::net::{SocketAddr, TcpListener};
 use std::path::PathBuf;
 use std::sync::Mutex;
 use tauri::{Manager, State};
@@ -212,6 +214,37 @@ async fn copy_to_clipboard(text: String) -> Result<(), String> {
     Ok(())
 }
 
+/// 動的ポート割り当て機能
+/// 30011-30030の範囲でポートを探し、見つからない場合は10000以降で空いているポートを探す
+fn find_available_port() -> Result<u16, io::Error> {
+    for port in 30011..=30030 {
+        if let Ok(listener) = TcpListener::bind(SocketAddr::from(([127, 0, 0, 1], port))) {
+            drop(listener);
+            return Ok(port);
+        }
+    }
+
+    for port in 10000..65535 {
+        if let Ok(listener) = TcpListener::bind(SocketAddr::from(([127, 0, 0, 1], port))) {
+            drop(listener);
+            return Ok(port);
+        }
+    }
+
+    Err(io::Error::new(
+        io::ErrorKind::AddrInUse,
+        "No available ports found",
+    ))
+}
+
+#[tauri::command]
+async fn get_port_info() -> Result<u16, String> {
+    match find_available_port() {
+        Ok(port) => Ok(port),
+        Err(e) => Err(format!("Failed to find available port: {}", e)),
+    }
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
@@ -239,7 +272,8 @@ pub fn run() {
             update_note_favorite,
             delete_note,
             copy_to_clipboard,
-            import_notes
+            import_notes,
+            get_port_info
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

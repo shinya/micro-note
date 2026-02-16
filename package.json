@@ -1,19 +1,25 @@
 {
   "name": "tauri-app",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.1.1",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "tauri": "tauri"
+    "tauri": "tauri",
+    "check": "npm run lint && npm run format:check",
+    "lint": "eslint . --ext .js,.vue",
+    "lint:fix": "eslint . --ext .js,.vue --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "tauri:dev": "npm run check && npm run tauri dev"
   },
   "dependencies": {
     "@headlessui/vue": "^1.7.23",
     "@heroicons/vue": "^2.2.0",
     "@tauri-apps/api": "^2",
-    "@tauri-apps/plugin-dialog": "^2.3.3",
+    "@tauri-apps/plugin-dialog": "^2.4.0",
     "@tauri-apps/plugin-fs": "^2.4.2",
     "@tauri-apps/plugin-opener": "^2",
     "@tauri-apps/plugin-positioner": "^2.3.0",
@@ -23,10 +29,20 @@
     "vue-i18n": "^9.14.5"
   },
   "devDependencies": {
+    "@eslint/js": "^9.15.0",
     "@tauri-apps/cli": "^2",
     "@vitejs/plugin-vue": "^5.2.1",
     "autoprefixer": "^10.4.21",
+    "eslint": "^9.15.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-import": "^2.31.0",
+    "eslint-plugin-n": "^17.12.0",
+    "eslint-plugin-prettier": "^5.2.1",
+    "eslint-plugin-promise": "^7.1.0",
+    "eslint-plugin-unicorn": "^58.0.0",
+    "eslint-plugin-vue": "^9.31.0",
     "postcss": "^8.5.6",
+    "prettier": "^3.3.3",
     "tailwindcss": "^3.4.17",
     "vite": "^6.0.3"
   }

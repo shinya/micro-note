@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
   "productName": "Micro Note",
-  "version": "0.1.0",
-  "identifier": "com.shinyasaita.tauri-app",
+  "version": "0.1.1",
+  "identifier": "com.pemomomo.micro-note",
   "build": {
     "beforeDevCommand": "npm run dev",
     "devUrl": "http://localhost:1420",
@@ -12,16 +12,16 @@
   "app": {
     "windows": [
       {
+        "label": "main",
         "title": "Micro Note",
         "width": 800,
         "height": 600,
-        "decorations": false,
-        "transparent": true,
-        "alwaysOnTop": false,
+        "minWidth": 400,
+        "minHeight": 300,
         "resizable": true,
-        "minimizable": true,
-        "maximizable": true,
-        "closable": true
+        "fullscreen": false,
+        "decorations": false,
+        "transparent": true
       }
     ],
     "security": {
@@ -30,13 +30,16 @@
   },
   "bundle": {
     "active": true,
-    "targets": "all",
     "icon": [
       "icons/micro-note_32x32.png",
       "icons/micro-note_128x128.png",
       "icons/micro-note_128x128@2x.png",
       "icons/micro-note.icns",
       "icons/micro-note.ico"
-    ]
+    ],
+    "resources": ["../dist"],
+    "macOS": {
+      "signingIdentity": "Developer ID Application: SHINYA SAITA (RNGXZZHG98)"
+    }
   }
 }
