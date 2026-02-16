@@ -33,7 +33,8 @@ export default {
   navigation: {
     chat: 'Chat',
     notes: 'Notes',
-    settings: 'Settings'
+    settings: 'Settings',
+    timeline: 'Timeline'
   },
 
   // Chat
@@ -52,7 +53,7 @@ export default {
     characterCount: '{count} characters',
     savedAsNote: 'Saved as note',
     createFirstNote: 'Create your first note',
-    createFirstNoteDescription: 'Enter the content you want to save in the text area below',
+    createFirstNoteDescription: 'Enter the content you want to save in the input area above',
 
   },
 
@@ -62,7 +63,7 @@ export default {
     subtitle: 'Manage and search your saved notes',
     searchPlaceholder: 'Search notes...',
     noNotes: 'No notes yet',
-    noNotesMessage: 'Create notes in the chat screen',
+    noNotesMessage: 'Type a note in the input area above',
     noSearchResults: 'No search results',
     noSearchResultsMessage: 'Try different keywords',
     favorite: 'Favorite',
@@ -111,6 +112,15 @@ export default {
     exportError: 'Export failed',
     dataExport: 'Data Export',
     dataExportDescription: 'Export all your notes to CSV format',
+    import: 'Import',
+    importing: 'Importing...',
+    importSuccess: 'Import successful',
+    importError: 'Import failed',
+    dataImport: 'Data Import',
+    dataImportDescription: 'Import notes from a CSV file',
+    importInvalidFormat: 'Invalid CSV format. Header must be "id,content,timestamp,is_favorite".',
+    importNoData: 'No data to import',
+    importComplete: '{count} notes imported successfully',
     saved: 'Saved',
     saveSuccess: 'Settings saved successfully',
     saveError: 'Failed to save settings',

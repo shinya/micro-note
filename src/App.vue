@@ -1,35 +1,24 @@
 <script setup>
-import { ref, onMounted, watch } from 'vue'
-import ChatView from './components/ChatView.vue'
-import NotesView from './components/NotesView.vue'
-import SettingsView from './components/SettingsView.vue'
+import { ref, onMounted } from 'vue'
+import TimelineView from './components/TimelineView.vue'
+import SettingsModal from './components/SettingsModal.vue'
 import WindowBar from './components/WindowBar.vue'
 
-const currentView = ref('chat')
+const showSettings = ref(false)
 const darkMode = ref(false)
-const animations = ref(true)
-
-const handleNoteAdded = () => {
-  // Note added handler
-  console.log('Note added')
-}
+const searchQuery = ref('')
+const showFavorites = ref(false)
 
 // Load and apply settings function
 const loadAndApplySettings = () => {
   // Load settings from localStorage
   const savedDarkMode = localStorage.getItem('micro-note-dark-mode')
-  const savedAnimations = localStorage.getItem('micro-note-animations')
   const savedCustomCSS = localStorage.getItem('micro-note-custom-css')
   const savedReverseMode = localStorage.getItem('micro-note-reverse-mode')
 
   // Apply dark mode setting
   if (savedDarkMode !== null) {
     darkMode.value = savedDarkMode === 'true'
-  }
-
-  // Apply animation setting
-  if (savedAnimations !== null) {
-    animations.value = savedAnimations === 'true'
   }
 
   // Apply reverse mode setting
@@ -48,14 +37,6 @@ const loadAndApplySettings = () => {
     html.setAttribute('data-theme', 'light')
   }
 
-  if (animations.value) {
-    html.classList.add('animations-enabled')
-    html.setAttribute('data-animations', 'enabled')
-  } else {
-    html.classList.remove('animations-enabled')
-    html.setAttribute('data-animations', 'disabled')
-  }
-
   // Apply custom CSS
   if (savedCustomCSS) {
     const existingStyle = document.getElementById('custom-chat-css')
@@ -72,7 +53,6 @@ const loadAndApplySettings = () => {
   // Update global settings
   window.microNoteSettings = {
     darkMode: darkMode.value,
-    animations: animations.value,
     reverseMode: savedReverseMode === 'true' || false,
     customCSS: savedCustomCSS || ''
   }
@@ -82,10 +62,7 @@ const loadAndApplySettings = () => {
 const updateSettings = () => {
   if (window.microNoteSettings) {
     darkMode.value = window.microNoteSettings.darkMode || false
-    animations.value = window.microNoteSettings.animations || true
-    // Note: reverseMode is handled in ChatView component
 
-    // Apply classes to HTML element
     const html = document.documentElement
     if (darkMode.value) {
       html.classList.add('dark')
@@ -93,14 +70,6 @@ const updateSettings = () => {
     } else {
       html.classList.remove('dark')
       html.setAttribute('data-theme', 'light')
-    }
-
-    if (animations.value) {
-      html.classList.add('animations-enabled')
-      html.setAttribute('data-animations', 'enabled')
-    } else {
-      html.classList.remove('animations-enabled')
-      html.setAttribute('data-animations', 'disabled')
     }
   }
 }
@@ -143,57 +112,42 @@ onMounted(() => {
             </h1>
           </div>
 
-          <nav class="flex items-center space-x-2">
-            <button
-              @click="currentView = 'chat'"
-              :class="[
-                'px-4 py-2 text-sm font-medium rounded-xl transition-all duration-200',
-                currentView === 'chat'
-                  ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-500/25'
-                  : 'text-gray-600 hover:text-gray-900 hover:bg-white/60 dark:text-gray-200 dark:hover:text-white dark:hover:bg-gray-700/60'
-              ]"
-            >
-              <div class="flex items-center space-x-2">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                </svg>
-                <span>{{ $t('navigation.chat') }}</span>
-              </div>
-            </button>
+          <div class="flex items-center space-x-2 flex-1 max-w-sm ml-6">
+            <div class="relative flex-1">
+              <input
+                v-model="searchQuery"
+                type="text"
+                :placeholder="$t('notes.searchPlaceholder')"
+                class="w-full pl-8 pr-3 py-1.5 text-sm border border-gray-200 rounded-lg bg-white/60 focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 dark:bg-gray-700/60 dark:border-gray-600 dark:text-gray-200 dark:focus:bg-gray-700 dark:placeholder-gray-400"
+              />
+              <svg class="absolute left-2.5 top-1/2 transform -translate-y-1/2 w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </div>
+          </div>
 
+          <nav class="flex items-center space-x-1">
             <button
-              @click="currentView = 'notes'"
-              :class="[
-                'px-4 py-2 text-sm font-medium rounded-xl transition-all duration-200',
-                currentView === 'notes'
-                  ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-500/25'
-                  : 'text-gray-600 hover:text-gray-900 hover:bg-white/60 dark:text-gray-200 dark:hover:text-white dark:hover:bg-gray-700/60'
-              ]"
+              @click="showFavorites = !showFavorites"
+              class="p-2 rounded-xl transition-all duration-200"
+              :class="showFavorites
+                ? 'text-yellow-500 bg-yellow-50 dark:bg-yellow-500/20'
+                : 'text-gray-600 hover:text-gray-900 hover:bg-white/60 dark:text-gray-200 dark:hover:text-white dark:hover:bg-gray-700/60'"
+              :title="$t('notes.favorite')"
             >
-              <div class="flex items-center space-x-2">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                </svg>
-                <span>{{ $t('navigation.notes') }}</span>
-              </div>
+              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+              </svg>
             </button>
-
             <button
-              @click="currentView = 'settings'"
-              :class="[
-                'px-4 py-2 text-sm font-medium rounded-xl transition-all duration-200',
-                currentView === 'settings'
-                  ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-500/25'
-                  : 'text-gray-600 hover:text-gray-900 hover:bg-white/60 dark:text-gray-200 dark:hover:text-white dark:hover:bg-gray-700/60'
-              ]"
+              @click="showSettings = !showSettings"
+              class="p-2 rounded-xl transition-all duration-200 text-gray-600 hover:text-gray-900 hover:bg-white/60 dark:text-gray-200 dark:hover:text-white dark:hover:bg-gray-700/60"
+              :title="$t('navigation.settings')"
             >
-              <div class="flex items-center space-x-2">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
-                <span>{{ $t('navigation.settings') }}</span>
-              </div>
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
             </button>
           </nav>
         </div>
@@ -201,16 +155,12 @@ onMounted(() => {
     </header>
 
     <!-- メインコンテンツ -->
-    <main class="main-content max-w-7xl mx-auto">
-      <!-- チャット画面 -->
-      <ChatView v-if="currentView === 'chat'" @note-added="handleNoteAdded" />
-
-      <!-- メモ一覧画面 -->
-      <NotesView v-else-if="currentView === 'notes'" />
-
-      <!-- 設定画面 -->
-      <SettingsView v-else-if="currentView === 'settings'" />
+    <main class="main-content max-w-7xl mx-auto overflow-hidden">
+      <TimelineView :searchQuery="searchQuery" :showFavorites="showFavorites" />
     </main>
+
+    <!-- 設定モーダル -->
+    <SettingsModal v-model="showSettings" />
   </div>
 </template>
 
@@ -262,6 +212,7 @@ main {
 /* メインコンテンツの位置調整 */
 .main-content {
   padding-top: 94px; /* WindowBar + Header の高さ分のパディング */
+  height: 100vh;
 }
 
 /* カスタムスクロールバー */

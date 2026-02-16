@@ -97,19 +97,6 @@
   --tw-ring-color: rgba(96, 165, 250, 0.2);
 }
 
-/* アニメーション制御 */
-.animations-enabled * {
-  transition: all 0.2s ease-in-out;
-}
-
-.animations-disabled * {
-  transition: none !important;
-}
-
-/* アニメーション無効時のホバー効果も無効化 */
-.animations-disabled *:hover {
-  transform: none !important;
-}
 
 /* カスタムCSSのプレビュー用スタイル */
 .chat-header,
@@ -232,18 +219,3 @@
   background: linear-gradient(to right, #1f2937, #111827) !important;
 }
 
-/* プリセットテーマカードのダークモード強化 */
-.dark .grid button {
-  background-color: #1e293b !important;
-  border-color: #475569 !important;
-}
-
-.dark .grid button:hover {
-  background-color: #334155 !important;
-  border-color: #64748b !important;
-}
-
-.dark .grid button.border-blue-500 {
-  background-color: rgba(59, 130, 246, 0.2) !important;
-  border-color: #60a5fa !important;
-}

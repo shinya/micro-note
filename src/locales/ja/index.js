@@ -33,7 +33,8 @@ export default {
   navigation: {
     chat: 'チャット',
     notes: 'メモ一覧',
-    settings: '設定'
+    settings: '設定',
+    timeline: 'タイムライン'
   },
 
   // Chat
@@ -52,7 +53,7 @@ export default {
     characterCount: '{count} 文字',
     savedAsNote: 'メモとして保存済み',
     createFirstNote: '最初のメモを作成しましょう',
-    createFirstNoteDescription: '下のテキストエリアにメモしたい内容を入力してください',
+    createFirstNoteDescription: '上の入力エリアにメモしたい内容を入力してください',
 
   },
 
@@ -62,7 +63,7 @@ export default {
     subtitle: '保存されたメモを管理・検索できます',
     searchPlaceholder: 'メモを検索...',
     noNotes: 'メモがありません',
-    noNotesMessage: 'チャット画面でメモを作成してみてください',
+    noNotesMessage: '上の入力エリアにメモを入力してみてください',
     noSearchResults: '検索結果がありません',
     noSearchResultsMessage: '別のキーワードで検索してみてください',
     favorite: 'お気に入り',
@@ -111,6 +112,15 @@ export default {
     exportError: 'エクスポート失敗',
     dataExport: 'データエクスポート',
     dataExportDescription: 'すべてのメモをCSV形式でエクスポート',
+    import: 'インポート',
+    importing: 'インポート中...',
+    importSuccess: 'インポート成功',
+    importError: 'インポート失敗',
+    dataImport: 'データインポート',
+    dataImportDescription: 'CSVファイルからメモをインポート',
+    importInvalidFormat: 'CSVファイルのフォーマットが正しくありません。ヘッダーが「id,content,timestamp,is_favorite」である必要があります。',
+    importNoData: 'インポートするデータがありません',
+    importComplete: '{count}件のメモをインポートしました',
     saved: '保存完了',
     saveSuccess: '設定が保存されました',
     saveError: '設定の保存に失敗しました',
