@@ -14,6 +14,15 @@ struct Note {
     content: String,
     timestamp: String,
     is_favorite: bool,
+    label_id: Option<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+struct Label {
+    id: String,
+    name: String,
+    color: String,
+    sort_order: i32,
 }
 
 struct AppState {
@@ -33,15 +42,39 @@ impl AppState {
         })?;
 
         db.execute(
+            "CREATE TABLE IF NOT EXISTS labels (
+                id TEXT PRIMARY KEY,
+                name TEXT NOT NULL,
+                color TEXT NOT NULL,
+                sort_order INTEGER NOT NULL DEFAULT 0
+            )",
+            [],
+        )
+        .map_err(|e| format!("Failed to create labels table: {}", e))?;
+
+        db.execute(
             "CREATE TABLE IF NOT EXISTS notes (
                 id TEXT PRIMARY KEY,
                 content TEXT NOT NULL,
                 timestamp TEXT NOT NULL,
-                is_favorite INTEGER NOT NULL DEFAULT 0
+                is_favorite INTEGER NOT NULL DEFAULT 0,
+                label_id TEXT DEFAULT NULL REFERENCES labels(id) ON DELETE SET NULL
             )",
             [],
         )
-        .map_err(|e| format!("Failed to create table: {}", e))?;
+        .map_err(|e| format!("Failed to create notes table: {}", e))?;
+
+        // 既存DBへのマイグレーション: label_id列が無ければ追加
+        let has_label_id = db
+            .prepare("SELECT label_id FROM notes LIMIT 0")
+            .is_ok();
+        if !has_label_id {
+            db.execute(
+                "ALTER TABLE notes ADD COLUMN label_id TEXT DEFAULT NULL REFERENCES labels(id) ON DELETE SET NULL",
+                [],
+            )
+            .map_err(|e| format!("Failed to add label_id column: {}", e))?;
+        }
 
         println!("Database initialized at {:?}", db_path);
         Ok(AppState { db: Mutex::new(db) })
@@ -52,14 +85,15 @@ impl AppState {
 async fn save_note(
     content: String,
     timestamp: String,
+    label_id: Option<String>,
     state: State<'_, AppState>,
 ) -> Result<(), String> {
     let db = state.db.lock().unwrap();
     let id = Uuid::new_v4().to_string();
 
     db.execute(
-        "INSERT INTO notes (id, content, timestamp, is_favorite) VALUES (?1, ?2, ?3, ?4)",
-        rusqlite::params![id, content, timestamp, 0i32],
+        "INSERT INTO notes (id, content, timestamp, is_favorite, label_id) VALUES (?1, ?2, ?3, ?4, ?5)",
+        rusqlite::params![id, content, timestamp, 0i32, label_id],
     )
     .map_err(|e| e.to_string())?;
 
@@ -71,7 +105,7 @@ async fn get_notes(state: State<'_, AppState>) -> Result<Vec<Note>, String> {
     let db = state.db.lock().unwrap();
 
     let mut stmt = db
-        .prepare("SELECT id, content, timestamp, is_favorite FROM notes ORDER BY timestamp DESC")
+        .prepare("SELECT id, content, timestamp, is_favorite, label_id FROM notes ORDER BY timestamp DESC")
         .map_err(|e| e.to_string())?;
 
     let notes = stmt
@@ -81,6 +115,7 @@ async fn get_notes(state: State<'_, AppState>) -> Result<Vec<Note>, String> {
                 content: row.get(1)?,
                 timestamp: row.get(2)?,
                 is_favorite: row.get::<_, i32>(3)? != 0,
+                label_id: row.get(4)?,
             })
         })
         .map_err(|e| e.to_string())?;
@@ -115,6 +150,107 @@ async fn delete_note(id: String, state: State<'_, AppState>) -> Result<(), Strin
     let db = state.db.lock().unwrap();
 
     db.execute("DELETE FROM notes WHERE id = ?1", rusqlite::params![id])
+        .map_err(|e| e.to_string())?;
+
+    Ok(())
+}
+
+#[tauri::command]
+async fn update_note_label(
+    id: String,
+    label_id: Option<String>,
+    state: State<'_, AppState>,
+) -> Result<(), String> {
+    let db = state.db.lock().unwrap();
+
+    db.execute(
+        "UPDATE notes SET label_id = ?1 WHERE id = ?2",
+        rusqlite::params![label_id, id],
+    )
+    .map_err(|e| e.to_string())?;
+
+    Ok(())
+}
+
+#[tauri::command]
+async fn get_labels(state: State<'_, AppState>) -> Result<Vec<Label>, String> {
+    let db = state.db.lock().unwrap();
+
+    let mut stmt = db
+        .prepare("SELECT id, name, color, sort_order FROM labels ORDER BY sort_order ASC, name ASC")
+        .map_err(|e| e.to_string())?;
+
+    let labels = stmt
+        .query_map([], |row| {
+            Ok(Label {
+                id: row.get(0)?,
+                name: row.get(1)?,
+                color: row.get(2)?,
+                sort_order: row.get(3)?,
+            })
+        })
+        .map_err(|e| e.to_string())?;
+
+    let mut result = Vec::new();
+    for label in labels {
+        result.push(label.map_err(|e| e.to_string())?);
+    }
+
+    Ok(result)
+}
+
+#[tauri::command]
+async fn save_label(
+    name: String,
+    color: String,
+    state: State<'_, AppState>,
+) -> Result<(), String> {
+    let db = state.db.lock().unwrap();
+    let id = Uuid::new_v4().to_string();
+
+    let max_order: i32 = db
+        .query_row("SELECT COALESCE(MAX(sort_order), -1) FROM labels", [], |row| row.get(0))
+        .unwrap_or(-1);
+
+    db.execute(
+        "INSERT INTO labels (id, name, color, sort_order) VALUES (?1, ?2, ?3, ?4)",
+        rusqlite::params![id, name, color, max_order + 1],
+    )
+    .map_err(|e| e.to_string())?;
+
+    Ok(())
+}
+
+#[tauri::command]
+async fn update_label(
+    id: String,
+    name: String,
+    color: String,
+    state: State<'_, AppState>,
+) -> Result<(), String> {
+    let db = state.db.lock().unwrap();
+
+    db.execute(
+        "UPDATE labels SET name = ?1, color = ?2 WHERE id = ?3",
+        rusqlite::params![name, color, id],
+    )
+    .map_err(|e| e.to_string())?;
+
+    Ok(())
+}
+
+#[tauri::command]
+async fn delete_label(id: String, state: State<'_, AppState>) -> Result<(), String> {
+    let db = state.db.lock().unwrap();
+
+    // label_id は ON DELETE SET NULL なので、まず手動でNULLに更新
+    db.execute(
+        "UPDATE notes SET label_id = NULL WHERE label_id = ?1",
+        rusqlite::params![id],
+    )
+    .map_err(|e| e.to_string())?;
+
+    db.execute("DELETE FROM labels WHERE id = ?1", rusqlite::params![id])
         .map_err(|e| e.to_string())?;
 
     Ok(())
@@ -270,10 +406,15 @@ pub fn run() {
             save_note,
             get_notes,
             update_note_favorite,
+            update_note_label,
             delete_note,
             copy_to_clipboard,
             import_notes,
-            get_port_info
+            get_port_info,
+            get_labels,
+            save_label,
+            update_label,
+            delete_label
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

@@ -103,7 +103,6 @@
   --tw-ring-color: rgba(96, 165, 250, 0.2);
 }
 
-
 /* カスタムCSSのプレビュー用スタイル */
 .chat-header,
 .chat-message,
@@ -226,4 +225,3 @@
 .dark .bg-gradient-to-r.from-blue-50.to-indigo-50 {
   background: linear-gradient(to right, #1f2937, #111827) !important;
 }
-

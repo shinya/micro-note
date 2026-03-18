@@ -53,22 +53,34 @@ const fetchNotes = async () => {
   }
 }
 
-const saveNote = async content => {
+const saveNote = async (content, labelId = undefined) => {
   if (!isTauri) {
     const mockNote = {
       id: Date.now().toString(),
       content,
       timestamp: new Date().toISOString(),
       is_favorite: false,
+      label_id: labelId,
     }
     notes.value.unshift(mockNote)
     return mockNote
   }
 
   const timestamp = new Date().toISOString()
-  await invoke('save_note', { content, timestamp })
+  await invoke('save_note', { content, timestamp, labelId })
 
   // 保存後に再取得
+  await fetchNotes()
+}
+
+const updateNoteLabel = async (id, labelId) => {
+  if (!isTauri) {
+    const note = notes.value.find(n => n.id === id)
+    if (note) note.label_id = labelId
+    return
+  }
+
+  await invoke('update_note_label', { id, labelId })
   await fetchNotes()
 }
 
@@ -124,6 +136,7 @@ export function useNoteStore() {
     fetchNotes,
     saveNote,
     updateFavorite,
+    updateNoteLabel,
     deleteNote,
   }
 }
