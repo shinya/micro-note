@@ -41,7 +41,7 @@
     "eslint-plugin-promise": "^7.3.0",
     "eslint-plugin-unicorn": "^76.0.0",
     "eslint-plugin-vue": "^10.11.1",
-    "postcss": "^8.5.28",
+    "postcss": "^8.5.29",
     "prettier": "^3.9.9",
     "tailwindcss": "^4.3.3",
     "vite": "^8.3.1"
